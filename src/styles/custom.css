@@ -1,0 +1,175 @@
+body{
+  background: #E4E9F7 !important;
+  color: black;
+}
+
+footer {
+  background-color: #007bff;
+  padding: 1rem;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  font-size: 16px;
+  color: white;
+}
+
+footer a {
+  color: white;
+  text-decoration: none;
+}
+
+footer p {
+  color: white;
+  text-decoration: none;
+  margin-bottom: 0;
+}
+/* Sidebar styling */
+#sidebar {
+  position: fixed;
+  width: 250px;
+  transition: all 0.3s;
+}
+
+#sidebar.collapsed {
+  width: 80px;
+}
+
+#sidebar img {
+  transition: all 0.3s;
+}
+
+#sidebar.collapsed img {
+  width: 40px;
+}
+
+/* Main content adjustment */
+.content {
+  transition: all 0.3s;
+}
+
+#sidebar.collapsed ~ .content {
+  margin-left: 70px;
+}
+
+/* Hide text in collapsed sidebar */
+#sidebar.collapsed .nav-link {
+  text-align: center;
+  font-size: 0;
+}
+
+#sidebar.collapsed .nav-link i {
+  font-size: 24px;
+}
+
+
+/* Right Filter Sidebar */
+.right-sidebar {
+  position: fixed;
+  top: 0;
+  right: -300px; /* Hidden initially */
+  width: 300px;
+  height: 100vh;
+  background-color: #fff;
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  z-index: 1050;
+  transition: right 0.3s ease-in-out; /* Smooth transition */
+  overflow-y: auto;
+}
+
+/* Visible state for the sidebar */
+.right-sidebar.visible {
+  right: 0;
+}
+
+/* Overlay styles */
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent overlay */
+  z-index: 1040; /* Behind the sidebar */
+  transition: 0.5s;
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1010;
+}
+
+/* New Sidebar */
+
+/* Ajuste del sidebar */
+.sidebar {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  /*padding: 58px 0 0; */
+  width: 240px;
+  background-color: #11101d; /* Fondo oscuro */
+  color: #fff;
+  z-index: 600;
+  transition: width 0.3s;
+}
+
+.sidebar.collapsed {
+  width: 70px;
+}
+
+.main-container {
+  width: 100%;
+  margin-left: 250px; /* Espacio para el sidebar */
+  transition: all 0.3s;
+}
+
+.main-container.expanded {
+  margin-left: 80px; /* Ajuste para el sidebar colapsado */
+}
+
+.main-container.expanded .toggle-sidebar {
+  left: 90px;
+}
+
+.sidebar.expanded {
+  width: 250px;
+}
+
+.sidebar.collapsed .logo_name {
+  display: none; /* Oculto por defecto */
+}
+
+.sidebar.expanded .logo_name {
+  display: inline; /* Se muestra cuando se expande */
+}
+
+
+
+.sidebar.expanded .link_name {
+  display: inline; /* Muestra el texto cuando está expandido */
+}
+
+
+
+.logo-details.d-flex.align-items-center {
+  padding: 20px;
+}
+
+img.logo_img {
+  width: 25%;
+}
+
+span.logo_name.ms-2 {
+  font-size: 22px;
+  color: #fff;
+  font-weight: 600;
+  transition: 0.3s ease;
+  transition-delay: 0.1s;
+}
+
+
+

@@ -1,0 +1,613 @@
+// src/components/admin/SchoolsPage.js
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import Layout from '../../components/Layout';
+import {
+  MDBContainer,
+  MDBRow,
+  MDBCard,
+  MDBCardBody,
+  MDBCardHeader,
+  MDBSpinner,
+  MDBCol,
+  MDBIcon,
+  MDBBtn
+} from 'mdb-react-ui-kit';
+import DataTable from 'react-data-table-component';
+import { CSVLink } from 'react-csv';
+import { useTranslation } from 'react-i18next';
+import FiltersSidebar from '../../components/FiltersSidebar';
+import swal from 'sweetalert';
+import FormModal from '../../components/FormModal';
+import NoDataComponent from '../../components/NoDataComponent';
+
+const SchoolsPage = () => {
+  const { t, i18n } = useTranslation();
+  const [users, setUsers] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  // Modal states
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false); // For Add School modal
+  const [isFilterVisible, setIsFilterVisible] = useState(false); // For Filter modal
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false); // For Update School modal
+	const [isSaving, setIsSaving] = useState(false);
+
+	// Toggle functions
+	const toggleAddModal = () => setIsAddModalOpen((prev) => !prev);
+	const toggleUpdateModal = () => setIsUpdateModalOpen((prev) => !prev);
+	const toggleFilterVisibility = () => setIsFilterVisible((prev) => !prev);
+
+	
+	// Form state for updating a user (pre-populated when clicking actions)
+  const [selectedUser, setSelectedUser] = useState(null);
+  // Temporary filters state (keys must match user object properties)
+  const [tempFilters, setTempFilters] = useState({
+    school_id: '',
+    description_es: '',
+    description_en: '',
+    commercial_name: '',
+    business_name: '',
+    address: '',
+    school_status: '',
+  });
+	// Form state for adding a new user
+	const [newUser, setNewUser] = useState({
+		person_id: '',
+		school_id: '',
+		role_id: '',
+		email: '',
+		username: '',
+		role_name: '',
+		full_name: '',
+		address: '',
+		commercial_name: '',
+		business_name: '',
+		first_name: '',
+		last_name_father: '',
+		last_name_mother: '',
+		birth_date: '',
+		phone_number: '',
+		tax_id: '',
+		street: '',
+		ext_number: '',
+		int_number: '',
+		suburb: '',
+		locality: '',
+		municipality: '',
+		state: '',
+		personal_email: '',
+		image: '',
+		user_enabled: '',
+		role_enabled: '',
+		school_enabled: '',
+		birth_date_formated: '',
+		user_status: '',
+		role_status: '',
+		school_status: ''
+		
+	});
+
+	// Add user form fields to pass to the modal component
+	const addUserFormGroups = [
+		
+		{
+			groupTitle: 'user_info',
+			columns: 1,
+			fields: [
+				{
+					// This object is a nested container (no key provided) that groups two nested groups
+					columns: 1,
+					fields: [
+						{
+							groupTitle: 'full_name',
+							columns: 3,
+							fields: [
+								{ key: 'first_name', label: 'first_name', type: 'text' },
+								{ key: 'last_name_father', label: 'last_name_father', type: 'text' },
+								{ key: 'last_name_mother', label: 'last_name_mother', type: 'text' },
+							],
+						},
+						{
+							groupTitle: 'user_info',
+							columns: 2,
+							fields: [
+								{ key: 'username', label: 'username', type: 'text' },
+								{ key: 'password', label: 'password', type: 'password' },
+							],
+						},
+					]
+				}
+			],
+		},
+		{
+			groupTitle: 'general_info', // translation key for group title
+			columns: 2,
+			fields: [
+				{ key: 'school_id', label: 'school_id', type: 'number' },
+				{ key: 'role_id', label: 'role_id', type: 'number' },
+			],
+		},
+		{
+			groupTitle: 'additional_info',
+			columns: 4,
+			fields: [
+				{ key: 'birth_date', label: 'birth_date', type: 'date' },
+				{ key: 'phone_number', label: 'phone_number', type: 'text' },
+				{ key: 'tax_id', label: 'tax_id', type: 'text' },
+				{ key: 'curp', label: 'curp', type: 'text' },
+			],
+		},
+		{
+			groupTitle: 'contact_and_address',
+			columns: 2,
+			fields: [
+				{ key: 'street', label: 'street', type: 'text' },
+				{ key: 'ext_number', label: 'ext_number', type: 'text' },
+				{ key: 'int_number', label: 'int_number', type: 'text' },
+				{ key: 'suburb', label: 'suburb', type: 'text' },
+				{ key: 'locality', label: 'locality', type: 'text' },
+				{ key: 'municipality', label: 'municipality', type: 'text' },
+				{ key: 'state', label: 'state', type: 'text' },
+				{ key: 'personal_email', label: 'personal_email', type: 'email' },
+				{ key: 'email', label: 'email', type: 'email' },
+				{ key: 'phone_number', label: 'phone_number', type: 'tel' },
+			],
+		}
+	];
+
+	// Update user form fields to pass to the modal component
+	const updateUserFormGroups = [
+		{
+			groupTitle: 'user_info',
+			columns: 3,
+			fields: [
+				{ key: 'first_name', label: 'first_name', type: 'text' },
+				{ key: 'last_name_father', label: 'last_name_father', type: 'text' },
+				{ key: 'last_name_mother', label: 'last_name_mother', type: 'text' },
+			]
+		},
+		{
+			groupTitle: 'general_info', // translation key for group title
+			columns: 2,
+			fields: [
+				{ key: 'school_id', label: 'school_id', type: 'number' },
+				{ key: 'role_id', label: 'role_id', type: 'number' },
+			],
+		},
+		{
+			groupTitle: 'additional_info',
+			columns: 4,
+			fields: [
+				{ key: 'birth_date', label: 'birth_date', type: 'date' },
+				{ key: 'phone_number', label: 'phone_number', type: 'text' },
+				{ key: 'tax_id', label: 'tax_id', type: 'text' },
+				{ key: 'curp', label: 'curp', type: 'text' },
+			],
+		},
+		{
+			groupTitle: 'contact_and_address',
+			columns: 2,
+			fields: [
+				{ key: 'street', label: 'street', type: 'text' },
+				{ key: 'ext_number', label: 'ext_number', type: 'text' },
+				{ key: 'int_number', label: 'int_number', type: 'text' },
+				{ key: 'suburb', label: 'suburb', type: 'text' },
+				{ key: 'locality', label: 'locality', type: 'text' },
+				{ key: 'municipality', label: 'municipality', type: 'text' },
+				{ key: 'state', label: 'state', type: 'text' },
+				{ key: 'personal_email', label: 'personal_email', type: 'email' },
+				{ key: 'email', label: 'email', type: 'email' },
+				{ key: 'phone_number', label: 'phone_number', type: 'tel' },
+			],
+		}
+	];
+
+  // Handler for adding a new user (stub: implement API call as needed)
+  const handleAddUser = () => {
+    // Implement axios.post(...) to add the new school.
+  	setIsSaving(true); // disable buttons and show spinner
+    axios.post(`http://localhost:8080/api/users/admin/create?lang=${i18n.language}`, newUser, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+    })
+    .then((response) => {
+      const resData = response.data;
+      if (resData.success === false) {
+				// For warnings or error messages returned from the SP, display SweetAlert with the provided type/title/message.
+				swal(resData.title, resData.message, resData.type);
+			} else {
+				// If success is true, show a success alert and close the modal.
+				swal(resData.title, resData.message, resData.type);
+				toggleAddModal();
+				fetchUsers(); // Refresh the table data
+			}
+			setIsSaving(false);
+    })
+    .catch((error) => {
+      swal(t('error_title'), t('add_failed'), 'error');
+      console.error('Error adding school:', error);
+			setIsSaving(false);
+    });
+  };
+
+  // Handler for updating a user: sends a PUT request with the pre-populated data
+  const handleUpdateUser = () => {
+    const token = localStorage.getItem('token');
+    // Use school_id from selectedUser as identifier.
+  	setIsSaving(true); // disable buttons and show spinner
+    axios
+      .put(`http://localhost:8080/api/users/admin/update/${selectedUser.user_id}?lang=${i18n.language}`, 
+			{
+        school_id: selectedUser.school_id,
+        role_id: selectedUser.role_id,
+        first_name: selectedUser.first_name,
+        last_name_father: selectedUser.last_name_father,
+        last_name_mother: selectedUser.last_name_mother,
+        birth_date: selectedUser.birth_date,
+        phone_number: selectedUser.phone_number,
+        tax_id: selectedUser.tax_id,
+        curp: selectedUser.curp,
+        street: selectedUser.street,
+        ext_number: selectedUser.ext_number,
+        int_number: selectedUser.int_number,
+        suburb: selectedUser.suburb,
+        locality: selectedUser.locality,
+        municipality: selectedUser.municipality,
+        state: selectedUser.state,
+        personal_email: selectedUser.personal_email,
+        image: selectedUser.image,
+        email: selectedUser.email,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
+    .then((response) => {
+      const resData = response.data;
+      if (resData.success === false) {
+        // For warnings or error messages returned from the SP, display SweetAlert with the provided type/title/message.
+        swal(resData.title, resData.message, resData.type);
+      } else {
+        // If success is true, show a success alert and close the modal.
+        swal(resData.title, resData.message, resData.type);
+        setIsUpdateModalOpen(false);
+        fetchUsers(); // Refresh the table data after update
+      }
+			setIsSaving(false);
+    })
+    .catch((error) => {
+      // Handle any network or unexpected errors.
+      swal(t('error_title'), t('update_failed'), 'error');
+      console.error('Error updating school:', error);
+			setIsSaving(false);
+    });
+	};
+
+
+	const handleStatusSwitchChange = () => {
+		swal({
+			title: t('change_status_confirm_title'),
+			text: t('change_status_confirm_text'),
+			icon: 'warning',
+			buttons: [t('cancel'), t('confirm')],
+			dangerMode: true,
+		}).then((willChange) => {
+			if (willChange) {
+				setIsSaving(true); // disable buttons and show spinner
+				const token = localStorage.getItem('token');
+  			
+				axios
+					.post(
+						`http://localhost:8080/api/users/admin/update/${selectedUser.user_id}/status?lang=${i18n.language}`,
+						{},
+						{ headers: { Authorization: `Bearer ${token}` } }
+					)
+					.then((response) => {
+						const resData = response.data;
+						if (resData.success === false) {
+							swal(resData.title, resData.message, resData.type);
+						} else {
+							swal(resData.title, resData.message, resData.type);
+							// Optionally update the local status in selectedUser or re-fetch data:
+							fetchUsers();
+							setIsUpdateModalOpen(false);
+						}
+						setIsSaving(false);
+					})
+					.catch((error) => {
+						swal(t('error_title'), t('update_failed'), 'error');
+						console.error('Error updating user status:', error);
+						setIsSaving(false);
+					});
+			} else {
+				// If user cancels, you might want to revert the switch state.
+				// For example, re-fetch selectedUser or simply do nothing.
+				fetchUsers();
+			}
+		});
+	};
+
+
+  // Helper: Count active filters
+  const getActiveFilterCount = () => {
+    return Object.values(tempFilters).filter(
+      (value) => value && value.trim() !== ''
+    ).length;
+  };
+  // Apply filters: simple filtering based on tempFilters values
+  const handleApplyFilters = () => {
+    let filtered = users;
+    Object.keys(tempFilters).forEach((key) => {
+      if (tempFilters[key]) {
+        filtered = filtered.filter((school) =>
+          school[key]?.toString().toLowerCase().includes(tempFilters[key].toLowerCase())
+        );
+      }
+    });
+    setFilteredUsers(filtered);
+    setIsFilterVisible(false); // Close the sidebar after applying filters
+  };
+	const handleClearFilters = () => {
+    setTempFilters({
+      school_id: '',
+      description: '',
+      commercial_name: '',
+      business_name: '',
+      address: '',
+      school_status: '',
+    });
+    setFilteredUsers(users); // Reset to the original list
+  };
+
+
+	/* ------------------------------ Fetch data ------------------------------ */
+	// Common function to fetch schools data
+  const fetchUsers = () => {
+    setLoading(true);
+    const token = localStorage.getItem('token');
+    axios
+      .get(`http://localhost:8080/api/users/admin/list?lang=${i18n.language}&status_filter=-1`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((response) => {
+        setUsers(response.data);
+        setFilteredUsers(response.data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error('Error fetching schools:', err);
+        setError(t('failed_to_fetch_schools'));
+        setLoading(false);
+      });
+  };
+  // Fetch schools data whenever the language changes
+  useEffect(() => {
+    // Set loading to true whenever language changes
+    setLoading(true);
+    const token = localStorage.getItem('token');
+    axios
+      .get(`http://localhost:8080/api/users/admin/list?lang=${i18n.language}&status_filter=-1`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((response) => {
+        setUsers(response.data);
+        setFilteredUsers(response.data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error('Error fetching schools:', err);
+        setError(t('failed_to_fetch_schools'));
+        setLoading(false);
+      });
+  }, [i18n.language, t]);
+
+  // Define columns for the datatable, including an Actions column with update trigger
+  const columns = [
+    {
+      name: t('user_id'),
+      selector: (row) => row.user_id,
+      sortable: true,
+    },
+    {
+      name: t('full_name'),
+      selector: (row) => row.full_name,
+      sortable: true,
+    },
+    {
+      name: t('username'),
+      selector: (row) => row.username,
+      sortable: true,
+    },
+    {
+      name: t('role_name'),
+      selector: (row) => row.role_name,
+      sortable: true,
+    },
+    {
+      name: t('user_status'),
+      selector: (row) => row.user_status,
+      sortable: true,
+    },
+    {
+      name: t('role_status'),
+      selector: (row) => row.role_status,
+      sortable: true,
+    },
+    {
+      name: t('school_status'),
+      selector: (row) => row.school_status,
+      sortable: true,
+    },
+    {
+      name: t('actions'),
+      cell: (row) => (
+        <MDBBtn flat="true" size="sm" onClick={() => {
+          setSelectedUser(row);
+          toggleUpdateModal();
+        }}>
+					<MDBIcon
+          fas
+          icon="ellipsis-v"
+          className="cursor-pointer"
+        /></MDBBtn>
+      ),
+      ignoreRowClick: true,
+    },
+  ];
+
+  // Pagination options with translations
+  const paginationOptions = {
+    rowsPerPageText: t('rows_per_page'),
+    rangeSeparatorText: t('of'),
+    selectAllRowsItem: true,
+    selectAllRowsItemText: t('all'),
+  };
+
+  // Prepare CSV data
+  const csvData = filteredUsers.map((user) => ({
+    [t('user_id')]: user.user_id,
+    [t('full_name')]: user.full_name,
+    [t('username')]: user.username,
+    [t('role_name')]: user.role_name,
+    [t('address')]: user.address,
+    [t('user_status')]: user.user_status,
+    [t('role_status')]: user.role_status,
+    [t('school_status')]: user.school_status,
+  }));
+
+	const conditionalRowStyles = [
+		{
+			when: row => row.user_enabled === false, // adjust condition based on your data type
+			style: {
+				backgroundColor: 'rgba(255, 0, 0, 0.1)', // a light red background
+			},
+		},
+	];
+
+  if (error) {
+    return (
+      <MDBContainer className="my-5">
+        <p className="text-danger">{error}</p>
+      </MDBContainer>
+    );
+  }
+
+  return (
+    <Layout pageTitle={t('schools')}>
+      <MDBContainer className="py-4">
+        {/* Header Row with Export, Add, Filter buttons */}
+        <MDBRow>
+          <MDBCol>
+            <MDBCard>
+							<MDBCardHeader>
+								<MDBRow className="d-flex justify-content-between align-items-center">
+									<MDBCol className="col-auto">
+										<MDBIcon fas icon="building" className="me-1" />
+										{t('schools_list')}
+									</MDBCol>
+									
+									<MDBCol className="col-auto d-flex">
+										{/* Export button */}
+										<MDBBtn color='light' rippleColor='dark'>
+											<CSVLink 
+												data={csvData} 
+												filename="users.csv"
+												style={{ textDecoration: 'none', color: 'inherit' }}
+											>
+												<MDBIcon fas icon="download" className="me-1" />
+												{t('export')}
+              				</CSVLink>
+										</MDBBtn>
+										{/* Add button */}
+										<MDBBtn color='light' rippleColor='dark' onClick={toggleAddModal}>
+											<MDBIcon fas icon="add" className="me-1" />
+											{t('add')}
+										</MDBBtn>
+										{/* Filter button */}
+										<MDBBtn color='light' rippleColor='dark'  onClick={toggleFilterVisibility}>
+											<MDBIcon fas icon="filter" className="me-1" />
+              {t('filter')} {getActiveFilterCount() > 0 ? `(${getActiveFilterCount()})` : ''}
+										</MDBBtn>
+									</MDBCol>
+								</MDBRow>
+							</MDBCardHeader>
+							<MDBCardBody>
+								<DataTable
+									// title={t('schools_list')}
+									columns={columns}
+									data={filteredUsers}
+									progressPending={loading}
+									pagination
+									highlightOnHover
+									responsive
+									// selectableRows
+									persistTableHead
+									striped
+									paginationComponentOptions={paginationOptions}
+									noDataComponent={<NoDataComponent message={t('no_data_available')} body={t('no_data_available_body')} />}
+									conditionalRowStyles={conditionalRowStyles}
+								/>
+							</MDBCardBody>
+            </MDBCard>
+          </MDBCol>
+        </MDBRow>
+      </MDBContainer>
+
+      {/* Add School Modal (XL size) */}
+      <FormModal
+        open={isAddModalOpen}
+        onClose={toggleAddModal}
+        formGroups={addUserFormGroups}
+        data={newUser}
+        setData={setNewUser}
+        onSave={handleAddUser}
+        title={t('add_user')}
+        size="xl"
+        idPrefix="create_"
+				isSaving={isSaving}
+      />
+			
+			{/* Update School Modal (XL size) */}
+			<FormModal
+        open={isUpdateModalOpen}
+        onClose={toggleUpdateModal}
+        formGroups={updateUserFormGroups}
+        data={selectedUser}
+        setData={setSelectedUser}
+        onSave={handleUpdateUser}
+        title={t('update_school')}
+        size="xl"
+        idPrefix="update_"
+				isSaving={isSaving}
+				changeStatus={true}
+				handleStatusSwitchChange={handleStatusSwitchChange}
+      />
+
+			{/* Filter Sidebar */}
+			<FiltersSidebar
+        filters={Object.keys(tempFilters).map((key) => ({
+          id: key,
+          label: t(key),
+          value: tempFilters[key],
+          onChange: (value) =>
+						 setTempFilters((prev) => ({ ...prev, [key]: value })),
+        }))}
+				applyFilters={handleApplyFilters}
+				clearFilters={handleClearFilters}
+				isVisible={isFilterVisible}
+				toggleVisibility={toggleFilterVisibility}
+      />
+    </Layout>
+  );
+};
+
+export default SchoolsPage;
