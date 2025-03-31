@@ -1,22 +1,40 @@
 {
   "login": "Iniciar Sesión",
+	"logout": "Cerrar sesión",
   "username_or_email": "Nombre de usuario o correo electrónico",
   "password": "Contraseña",
   "remember_me": "Recordar contraseña",
   "forgot_password": "¿Olvidaste tu contraseña?",
   "wrong_credentials": "Credenciales inválidas",
   "user_disabled": "El usuario está deshabilitado. Por favor, contacte a un administrador",
+  "failed_to_fetch_data": "Error al cargar la información",
   
+  "parents": "Padres",
+	"subjects": "Materias",
+	"classes": "Grupos",
+	"lessons": "Lexiones",
+	"exams": "Examenes",
+	"assignments": "Tareas",
+	"results": "Resultados",
+	"attendance": "Asistencia",
+	"events": "Eventos",
+	"messages": "Mensajes",
+	"announcements": "Anuncios",
+
   "page_not_found": "Página No Encontrada",
   "page_not_found_body": "La página que estás buscando pudo haber sido removida, ha cambiado de nombre o se encuentra no disponible temporalmente.",
-
+	"student_info":"Información del estudiante",
   "login_btn": "Iniciar sesión",
   "logout_btn": "Cerrar sesión",
   "back_to_home_btn": "Regresar a Inicio",
-    
+	"please_fill_required": "Por favor, complete la información",
   "close": "Cerrar",
   "save_changes": "Guardar cambios",
-
+	"school_disabled":"La escuela se encuentra desactivada y afecta a los usuarios",
+  "filters": "Filtros",
+	"apply_filters": "Aplicar",
+	"clear_filters": "Borrar",
+	"coming_soon": "Próximamente",
   "dashboard": "Panel principal",
   "schools": "Escuelas",
   "finance": "Finanzas",
@@ -24,9 +42,9 @@
   "settings": "Configuración",
   "teachers": "Profesores",
   "students": "Estudiantes",
-
+	"update_users": "Actualizar usuario",
   "failed_to_fetch_schools": "Error al cargar las escuelas.",
-  "school_id": "ID de escuela",
+  "school_id": "Escuela",
   "description": "Descripción",
   "commercial_name": "Nombre comercial",
   "business_name": "Razón social",
@@ -36,6 +54,7 @@
   "of": "de",
   "all": "Todo",
   "schools_list": "Lista de escuelas",
+  "users_list": "Lista de usuarios",
   "no_data_available": "No hay datos disponibles.",
   "no_data_available_body": "Por favor, refina tu búsqueda o intenta de nuevo más tarde.",
 
@@ -50,9 +69,18 @@
   "filter": "Filtrar",
   "actions": "Acciones",
 
+	"scholar_level_name":"Nivel escolar",
+	"grade_group":"Grado y grupo",
   "update":"Actualizar",
   "update_school":"Actualizar escuela",
-
+	"students_list":"Lista de estudiantes",
+	"group_id":"Grupo",
+	"register_id":"Matrícula",
+	"payment_reference":"Referencia de pagos",
+	"add_student":"Añadir estudiante",
+	"update_student":"Actualizar estudiante",
+	"teachers_list":"Lista de profesores",
+  "select_option":"Selecciona una opción",
   "add_user":"Añadir usuario",
   "user_info":"Información de usuario",
   "school_status": "Estatus de escuela",
@@ -82,6 +110,7 @@
 	"last_name_mother":"Apellido materno",
   "personal_email":"Email personal",
   "role_id":"Rol",
+  "role":"Rol",
 	"birth_date":"Fecha de nacimiento",
 	"curp":"CURP",
 
@@ -92,5 +121,15 @@
   "general_info": "Información general",
   "school_details": "Detalles de la escuela",
   "school": "Escuela",
-  "contact_and_address": "Dirección y contacto"
+  "contact_and_address": "Dirección y contacto",
+
+  "mass_upload_teachers": "Carga masiva de profesores",
+  "drop_the_file_here": "Suelta el archivo aquí",
+  "drag_and_drop_a_csv_file_here_or_click_to_select": "Arrastra aquí un archivo CSV o haz clic para seleccionar",
+  "preview": "Preview",
+  "upload": "Cargar",
+  "upload_successful": "Carga completada!",
+  "upload_failed": "La carga no se pudo completar!",
+  "please_fix_errors_before_upload": "Por favor, solucione los errores antes de continuar",
+  "error_title": "Error"
 }

@@ -23,9 +23,7 @@ const ProtectedRoute = ({ allowedRoles }) => {
 
   // Check if allowedRoles is defined, then check if user's role is allowed.
   // Make sure that your user object has a "role" property (or update the property name accordingly)
-  if (allowedRoles && !allowedRoles.map(r => r.toUpperCase()).includes(userRole.toUpperCase())) {
-    return <Navigate to="/unauthorized" />;
-  }
+
 
   return <Outlet />;
 };

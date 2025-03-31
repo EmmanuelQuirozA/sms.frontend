@@ -1,3 +1,4 @@
+import { t } from "i18next";
 import React, { useEffect, useRef } from "react";
 
 const FiltersSidebar = ({
@@ -43,7 +44,7 @@ const FiltersSidebar = ({
             <i className="bi bi-x"></i>
           </button>
 
-          <h4>Filters</h4>
+          <h4>{t("filters")}</h4>
 
           {/* Filter inputs */}
           {filters.map((filter, index) => (
@@ -79,10 +80,10 @@ const FiltersSidebar = ({
           ))}
           <div className="d-flex justify-content-between">
             <button className="btn btn-primary" onClick={applyFilters}>
-              Apply Filters
+              {t("apply_filters")}
             </button>
             <button className="btn btn-secondary" onClick={clearFilters}>
-              Clear Filters
+              {t("clear_filters")}
             </button>
           </div>
         </div>

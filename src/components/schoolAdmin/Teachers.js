@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import Layout from '../../components/Layout';
+import Layout from '../Layout';
 import {
 	MDBContainer,
 	MDBRow,
@@ -15,12 +15,12 @@ import {
 import DataTable from 'react-data-table-component';
 import { CSVLink } from 'react-csv';
 import { useTranslation } from 'react-i18next';
-import FiltersSidebar from '../../components/FiltersSidebar';
+import FiltersSidebar from '../FiltersSidebar';
 import swal from 'sweetalert';
-import FormModal from '../../components/FormModal';
-import NoDataComponent from '../../components/NoDataComponent';
+import FormModal from '../FormModal';
+import NoDataComponent from '../NoDataComponent';
 
-const SchoolsPage = () => {
+const TeachersPage = () => {
 	const { t, i18n } = useTranslation();
 	const [users, setUsers] = useState([]);
 	const [filteredUsers, setFilteredUsers] = useState([]);
@@ -54,7 +54,7 @@ const SchoolsPage = () => {
 	const [newUser, setNewUser] = useState({
 		person_id: '',
 		school_id: '',
-		role_id: '',
+		role_id: 2,
 		email: '',
 		username: '',
 		role_name: '',
@@ -104,7 +104,7 @@ const SchoolsPage = () => {
 								{ key: 'first_name', label: 'first_name', type: 'text', required: true },
 								{ key: 'last_name_father', label: 'last_name_father', type: 'text', required: true },
 								{ key: 'last_name_mother', label: 'last_name_mother', type: 'text', required: true },
-							]
+							],
 						},
 						{
 							groupTitle: 'user_info',
@@ -120,35 +120,25 @@ const SchoolsPage = () => {
 		},
 		{
 			groupTitle: 'general_info', // translation key for group title
-			columns: 2,
+			columns: 1,
 			fields: [
 				{ 
 					key: 'school_id', 
-					label: 'school_id', 
+					label: 'school', 
 					type: 'select',
+					required: true,
 					options: schools.map(school => ({
 						value: school.school_id,
 						label: school.description
-					}))
-				},
-				{ 
-					key: 'role_id', 
-					label: 'role_id', 
-					type: 'select',
-					required: true,
-					options: roles.map(role => ({
-						value: role.role_id,
-						label: role.role_name
 					}))
 				},
 			],
 		},
 		{
 			groupTitle: 'additional_info',
-			columns: 4,
+			columns: 3,
 			fields: [
 				{ key: 'birth_date', label: 'birth_date', type: 'date' },
-				{ key: 'phone_number', label: 'phone_number', type: 'text' },
 				{ key: 'tax_id', label: 'tax_id', type: 'text' },
 				{ key: 'curp', label: 'curp', type: 'text' },
 			],
@@ -165,7 +155,7 @@ const SchoolsPage = () => {
 				{ key: 'municipality', label: 'municipality', type: 'text' },
 				{ key: 'state', label: 'state', type: 'text' },
 				{ key: 'personal_email', label: 'personal_email', type: 'email' },
-				{ key: 'email', label: 'email', type: 'email' },
+				{ key: 'email', label: 'email', type: 'email', required: true },
 				{ key: 'phone_number', label: 'phone_number', type: 'tel' },
 			],
 		}
@@ -189,8 +179,8 @@ const SchoolsPage = () => {
 				{ 
 					key: 'school_id', 
 					label: 'school_id', 
-					type: 'select', 
-					required: false, 
+					type: 'select',
+					required: true,
 					options: schools.map(school => ({
 						value: school.school_id,
 						label: school.description
@@ -214,14 +204,7 @@ const SchoolsPage = () => {
 			fields: [
 				{ key: 'birth_date', label: 'birth_date', type: 'date' },
 				{ key: 'tax_id', label: 'tax_id', type: 'text' },
-				{
-					key: 'curp',
-					label: 'curp',
-					type: 'text',
-					// required: true,
-					pattern: '^[A-Z]{1}[AEIOU]{1}[A-Z]{2}\\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\\d|3[01])[HM](AS|BC|BS|CC|CS|CH|CL|CM|DF|DG|GT|GR|HG|JC|MC|MN|MS|NT|NL|OC|PL|QT|QR|SP|SL|SR|TC|TS|TL|VZ|YN|ZS|NE)[B-DF-HJ-NP-TV-Z]{3}[0-9A-Z]\\d$',
-					errorMessage: 'curp_id_regex_error.'
-				},
+				{ key: 'curp', label: 'curp', type: 'text' },
 			],
 		},
 		{
@@ -236,7 +219,7 @@ const SchoolsPage = () => {
 				{ key: 'municipality', label: 'municipality', type: 'text' },
 				{ key: 'state', label: 'state', type: 'text' },
 				{ key: 'personal_email', label: 'personal_email', type: 'email' },
-				{ key: 'email', label: 'email', type: 'email' },
+				{ key: 'email', label: 'email', type: 'email', required: true },
 				{ key: 'phone_number', label: 'phone_number', type: 'tel' },
 			],
 		}
@@ -407,7 +390,7 @@ const SchoolsPage = () => {
 		setLoading(true);
 		const token = localStorage.getItem('token');
 		axios
-			.get(`http://localhost:8080/api/users/list?lang=${i18n.language}&status_filter=-1`, {
+			.get(`http://localhost:8080/api/users/list?lang=${i18n.language}&status_filter=-1&getRole=teachers`, {
 				headers: {
 					Authorization: `Bearer ${token}`,
 				},
@@ -429,7 +412,7 @@ const SchoolsPage = () => {
 		setLoading(true);
 		const token = localStorage.getItem('token');
 		axios
-			.get(`http://localhost:8080/api/users/list?lang=${i18n.language}&status_filter=-1`, {
+			.get(`http://localhost:8080/api/users/list?lang=${i18n.language}&status_filter=-1&getRole=teachers`, {
 				headers: {
 					Authorization: `Bearer ${token}`,
 				},
@@ -479,11 +462,6 @@ const SchoolsPage = () => {
 	// Define columns for the datatable, including an Actions column with update trigger
 	const columns = [
 		{
-			name: t('user_id'),
-			selector: (row) => row.user_id,
-			sortable: true,
-		},
-		{
 			name: t('full_name'),
 			selector: (row) => row.full_name,
 			sortable: true,
@@ -499,18 +477,13 @@ const SchoolsPage = () => {
 			sortable: true,
 		},
 		{
+			name: t('school'),
+			selector: (row) => row.commercial_name,
+			sortable: true,
+		},
+		{
 			name: t('user_status'),
 			selector: (row) => row.user_status,
-			sortable: true,
-		},
-		{
-			name: t('role_status'),
-			selector: (row) => row.role_status,
-			sortable: true,
-		},
-		{
-			name: t('school_status'),
-			selector: (row) => row.school_status,
 			sortable: true,
 		},
 		{
@@ -552,7 +525,7 @@ const SchoolsPage = () => {
 
 	const conditionalRowStyles = [
 		{
-			when: row => row.user_enabled === false, // adjust condition based on your data type
+			when: row => row.user_enabled === false ||row.role_enabled === false ||row.school_enabled === false, // adjust condition based on your data type
 			style: {
 				backgroundColor: 'rgba(255, 0, 0, 0.1)', // a light red background
 			},
@@ -568,7 +541,7 @@ const SchoolsPage = () => {
 	}
 
 	return (
-		<Layout pageTitle={t('users')}>
+		<Layout pageTitle={t('teachers')}>
 			<MDBContainer className="py-4">
 				{/* Header Row with Export, Add, Filter buttons */}
 				<MDBRow>
@@ -577,21 +550,21 @@ const SchoolsPage = () => {
 							<MDBCardHeader>
 								<MDBRow className="d-flex justify-content-between align-items-center">
 									<MDBCol className="col-auto">
-										{t('users_list')}
+										{t('teachers_list')}
 									</MDBCol>
 									
 									<MDBCol className="col-auto d-flex">
 										{/* Export button */}
-										<MDBBtn color='light' rippleColor='dark'>
-											<CSVLink 
-												data={csvData} 
-												filename="users.csv"
-												style={{ textDecoration: 'none', color: 'inherit' }}
-											>
-												<MDBIcon fas icon="download" className="me-1" />
-												{t('export')}
-											</CSVLink>
-										</MDBBtn>
+										<CSVLink 
+											data={csvData} 
+											filename="teachers.csv"
+											style={{ textDecoration: 'none', color: 'inherit' }}
+										>
+											<MDBBtn color='light' rippleColor='dark'>
+													<MDBIcon fas icon="download" className="me-1" />
+													{t('export')}
+											</MDBBtn>
+										</CSVLink>
 										{/* Add button */}
 										<MDBBtn color='light' rippleColor='dark' onClick={toggleAddModal}>
 											<MDBIcon fas icon="add" className="me-1" />
@@ -635,7 +608,7 @@ const SchoolsPage = () => {
 				data={newUser}
 				setData={setNewUser}
 				onSave={handleAddUser}
-				title={t('add_user')}
+				title={t('add_teacher')}
 				size="xl"
 				idPrefix="create_"
 				isSaving={isSaving}
@@ -649,7 +622,7 @@ const SchoolsPage = () => {
 				data={selectedUser}
 				setData={setSelectedUser}
 				onSave={handleUpdateUser}
-				title={t('update_users')}
+				title={t('update_teacher')}
 				size="xl"
 				idPrefix="update_"
 				isSaving={isSaving}
@@ -675,4 +648,4 @@ const SchoolsPage = () => {
 	);
 };
 
-export default SchoolsPage;
+export default TeachersPage;

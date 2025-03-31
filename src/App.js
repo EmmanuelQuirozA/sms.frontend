@@ -15,6 +15,11 @@ import Users from './components/admin/Users';
 
 //School Admin
 import SchoolAdminDashboard from './components/schoolAdmin/Dashboard';
+import SchoolAdminSchools from './components/schoolAdmin/Schools';
+import SchoolAdminUsers from './components/schoolAdmin/Users';
+import SchoolAdminTeachers from './components/schoolAdmin/Teachers';
+import SchoolAdminStudents from './components/schoolAdmin/Students';
+import SchoolAdminCoffee from './components/schoolAdmin/Coffee';
 
 
 //Student
@@ -31,12 +36,20 @@ import Unauthorized from './components/Unauthorized';
 function App() {
   const { user } = useContext(AuthContext);
   
+  const getHomeRoute = (user) => {
+    if (!user) return '/login';
+    if (user.roleName === 'ADMIN') return '/admin/dashboard';
+    if (user.roleName === 'SCHOOL_ADMIN') return '/schooladmin/dashboard';
+    if (user.roleName === 'STUDENT') return '/student/dashboard';
+    return '/';
+  };
+  
   return (
     <Router>
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<Dashboard />} />
-          <Route path="/login" element={!user ? <Login /> : <Navigate to="/admin/dashboard" />} />
+          <Route path="/login" element={!user ? <Login /> : <Navigate to={getHomeRoute(user)} />} />
         
           {/* Protected Routes */}
             {/* Admin */}
@@ -49,7 +62,12 @@ function App() {
             {/* School Admin */}
             <Route element={<ProtectedRoute allowedRoles={['SCHOOL_ADMIN']} />}>
               <Route path="/schooladmin/dashboard" element={<SchoolAdminDashboard />} />
-            </Route>
+              <Route path="/schooladmin/schools" element={<SchoolAdminSchools />} />
+              <Route path="/schooladmin/users" element={<SchoolAdminUsers />} />
+              <Route path="/schooladmin/teachers" element={<SchoolAdminTeachers />} />
+              <Route path="/schooladmin/students" element={<SchoolAdminStudents />} />
+              <Route path="/schooladmin/coffee" element={<SchoolAdminCoffee />} />
+              </Route>
 
             {/* Student */}
             <Route element={<ProtectedRoute allowedRoles={['STUDENT']} />}>

@@ -1,5 +1,5 @@
 // src/components/FormModal.js
-import React from 'react';
+import React, { useState } from 'react';
 import {
   MDBModal,
   MDBModalDialog,
@@ -12,8 +12,10 @@ import {
   MDBRow,
   MDBCol,
   MDBInput,
-  MDBSwitch ,
-	MDBSpinner
+  MDBSwitch,
+  MDBSpinner,
+  MDBValidation,
+  MDBValidationItem
 } from 'mdb-react-ui-kit';
 import { useTranslation } from 'react-i18next';
 
@@ -24,7 +26,6 @@ const FormModal = ({
   data, 
   setData, 
   onSave, 
-  onChangeStatus, 
   title, // Modal title
   size, // Modal size. E.g.: "xl"
   idPrefix, // Field ID prefix. E.g.: "update_" or "create_"
@@ -33,16 +34,25 @@ const FormModal = ({
   isSaving
 }) => {
   const { t } = useTranslation();
+  const [validated, setValidated] = useState(false);
+
+  // This handler wraps the onSave so that it is only called if the form is valid.
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setValidated(true);
+    // checkValidity() uses native HTML5 validation:
+    if (e.target.checkValidity()) {
+      onSave();
+    }
+  };
 
   // Helper to render a nested container (for nested groups)
   const renderNestedContainer = (container, colSize, index) => {
-    // container.columns indicates how many columns to split nested groups into.
     const nestedColSize = Math.floor(12 / (container.columns || 1));
     return (
       <MDBCol key={index} size={colSize}>
         <MDBRow>
           {container.fields.map((nestedGroup, nestedIndex) => {
-            // Each nestedGroup should have a groupTitle and its own fields and columns.
             const nestedGroupColSize = Math.floor(12 / (nestedGroup.columns || 1));
             return (
               <MDBCol key={nestedIndex} size={nestedColSize}>
@@ -51,17 +61,22 @@ const FormModal = ({
                   <MDBRow>
                     {nestedGroup.fields.map((nestedField, fieldIndex) => (
                       <MDBCol key={fieldIndex} size={nestedGroupColSize}>
-                				<div className="mb-3">
-													<MDBInput
-														label={t(nestedField.label)}
-														id={`${idPrefix}${nestedField.key}`}
-														type={nestedField.type || 'text'}
-														value={data?.[nestedField.key] ?? ''}
-														onChange={(e) =>
-															setData({ ...data, [nestedField.key]: e.target.value })
-														}
-													/>
-                				</div>
+                        <MDBValidationItem
+                          feedback={t(nestedField.errorMessage) || t('field_required')}
+                          invalid
+                        >
+                          <MDBInput
+                            label={t(nestedField.label)}
+                            id={`${idPrefix}${nestedField.key}`}
+                            type={nestedField.type || 'text'}
+                            value={data?.[nestedField.key] ?? ''}
+                            onChange={(e) =>
+                              setData({ ...data, [nestedField.key]: e.target.value })
+                            }
+                            required={nestedField.required || false}
+                            pattern={nestedField.pattern || undefined}
+                          />
+                        </MDBValidationItem>
                       </MDBCol>
                     ))}
                   </MDBRow>
@@ -80,24 +95,30 @@ const FormModal = ({
     if (!field.key && field.fields) {
       return renderNestedContainer(field, colSize, index);
     } else if (field.fields) {
-      // If it has a key and fields, treat it as a nested group (less common).
+      // For a nested group (with its own key as well as nested fields)
       const nestedColSize = Math.floor(12 / (field.columns || 1));
       return (
         <MDBCol key={index} size={colSize}>
           <div className="mb-3">
-            {}
             <MDBRow>
               {field.fields.map((nestedField, nestedIndex) => (
                 <MDBCol key={nestedIndex} size={nestedColSize}>
-                  <MDBInput
-                    label={t(nestedField.label)}
-                    id={`${idPrefix}${nestedField.key}`}
-                    type={nestedField.type || 'text'}
-                    value={data?.[nestedField.key] ?? ''}
-                    onChange={(e) =>
-                      setData({ ...data, [nestedField.key]: e.target.value })
-                    }
-                  />
+                  <MDBValidationItem
+                    feedback={t(nestedField.errorMessage) || t('field_required')}
+                    invalid
+                  >
+                    <MDBInput
+                      label={t(nestedField.label)}
+                      id={`${idPrefix}${nestedField.key}`}
+                      type={nestedField.type || 'text'}
+                      value={data?.[nestedField.key] ?? ''}
+                      onChange={(e) =>
+                        setData({ ...data, [nestedField.key]: e.target.value })
+                      }
+                      required={nestedField.required || false}
+                      pattern={nestedField.pattern || undefined}
+                    />
+                  </MDBValidationItem>
                 </MDBCol>
               ))}
             </MDBRow>
@@ -105,7 +126,7 @@ const FormModal = ({
         </MDBCol>
       );
     } else if (field.type === 'image') {
-      // Render image field
+      // Render image field without validation
       return (
         <MDBCol key={index} size={colSize} className="d-flex justify-content-center align-items-center">
           <div className="mb-3">
@@ -118,11 +139,74 @@ const FormModal = ({
           </div>
         </MDBCol>
       );
+    } else if (field.type === 'select') {
+      if (field.required) {
+        // Render a select field with validation
+        return (
+          <MDBCol key={index} size={colSize}>
+            <MDBValidationItem
+              feedback={t(field.errorMessage) || t('select_option_required')}
+              invalid
+            >
+              <label htmlFor={`${idPrefix}${field.key}`}>{t(field.label)}</label>
+              <select
+                id={`${idPrefix}${field.key}`}
+                className="form-select"
+                value={data?.[field.key] ?? ''}
+                onChange={(e) =>
+                  setData({ ...data, [field.key]: e.target.value })
+                }
+                required={field.required || false}
+              >
+                <option value="" disabled>{t('select_option')}</option>
+                {field.options && field.options.map((opt, idx) => (
+                  <option key={idx} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </MDBValidationItem>
+          </MDBCol>
+        );
+      } else {
+        // Render a select field with validation
+        return (
+          <MDBCol key={index} size={colSize}>
+            <MDBValidationItem
+              feedback={t(field.errorMessage) || t('select_option_required')}
+              invalid
+            >
+              <label htmlFor={`${idPrefix}${field.key}`}>{t(field.label)}</label>
+              <select
+                id={`${idPrefix}${field.key}`}
+                className="form-select"
+                value={data?.[field.key] ?? ''}
+                onChange={(e) =>
+                  setData({ ...data, [field.key]: e.target.value })
+                }
+                required={field.required || false}
+              >
+                <option value="">{t('select_option')}</option>
+                {field.options && field.options.map((opt, idx) => (
+                  <option key={idx} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </MDBValidationItem>
+          </MDBCol>
+        );
+
+      }
     } else {
-      // Standard input field
+      // Standard input field with validation
       return (
         <MDBCol key={index} size={colSize}>
-          <div className="mb-3">
+          <MDBValidationItem
+          className="mb-3"
+            feedback={t(field.errorMessage) || t('field_required')}
+            invalid
+          >
             <MDBInput
               label={t(field.label)}
               id={`${idPrefix}${field.key}`}
@@ -131,8 +215,10 @@ const FormModal = ({
               onChange={(e) =>
                 setData({ ...data, [field.key]: e.target.value })
               }
+              required={field.required || false}
+              pattern={field.pattern || undefined}
             />
-          </div>
+          </MDBValidationItem>
         </MDBCol>
       );
     }
@@ -166,26 +252,32 @@ const FormModal = ({
             <MDBModalTitle>{t(title)}</MDBModalTitle>
             <MDBBtn className="btn-close" color="none" onClick={onClose}></MDBBtn>
           </MDBModalHeader>
-          <MDBModalBody>
-            {renderFormGroups()}
-          </MDBModalBody>
-          <MDBModalFooter>
-            {changeStatus && (
-              <MDBSwitch  
-                id="statusSwitch"
-                label={t('change_status')}
-								checked={(data?.enabled || data?.user_enabled) ?? false}
-                onChange={handleStatusSwitchChange}
-                disabled={isSaving}
-              />
-            )}
-            <MDBBtn color="secondary" onClick={onClose} disabled={isSaving}>
-              {isSaving ? <MDBSpinner size="sm" /> : t('close')}
-            </MDBBtn>
-            <MDBBtn color="primary" onClick={onSave} disabled={isSaving}>
-              {isSaving ? <MDBSpinner size="sm" /> : t('save_changes')}
-            </MDBBtn>
-          </MDBModalFooter>
+          {/* Wrap modal body and footer in MDBValidation.
+              onSubmit will check all fields and only then call onSave */}
+          <MDBValidation onSubmit={handleSubmit} noValidate validated={validated} id="validationForm">
+            <MDBModalBody>
+              {renderFormGroups()}
+            </MDBModalBody>
+            </MDBValidation>
+            <MDBModalFooter>
+              {changeStatus && (
+                <MDBSwitch  
+                  id="statusSwitch"
+                  label={t('change_status')}
+                  checked={(data?.enabled || data?.user_enabled) ?? false}
+                  onChange={handleStatusSwitchChange}
+                  disabled={isSaving}
+                />
+              )}
+              <MDBBtn color="secondary" onClick={onClose} disabled={isSaving}>
+                {isSaving ? <MDBSpinner size="sm" /> : t('close')}
+              </MDBBtn>
+              {/* Change the save button to type submit */}
+              <MDBBtn type="submit" color="primary" disabled={isSaving} form="validationForm">
+                {isSaving ? <MDBSpinner size="sm" /> : t('save_changes')}
+              </MDBBtn>
+            </MDBModalFooter>
+          
         </MDBModalContent>
       </MDBModalDialog>
     </MDBModal>

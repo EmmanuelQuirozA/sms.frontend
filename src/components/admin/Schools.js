@@ -1,4 +1,3 @@
-// src/components/admin/SchoolsPage.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Layout from '../../components/Layout';
@@ -121,7 +120,15 @@ const SchoolsPage = () => {
 			groupTitle: 'general_info', // translation key for group title
 			columns: 1,
 			fields: [
-				{ key: 'related_school_id', label: 'related_school_id', type: 'text' },
+				{ 
+					key: 'related_school_id', 
+					label: 'related_school_id', 
+					type: 'select',
+					options: schools.map(school => ({
+						value: school.school_id,
+						label: school.description
+					}))
+				},
 			],
 		},
 		{
@@ -164,7 +171,7 @@ const SchoolsPage = () => {
     console.log('New school data:', newSchool);
     // Implement axios.post(...) to add the new school.
   	setIsSaving(true); // disable buttons and show spinner
-    axios.post(`http://localhost:8080/api/schools/admin/create?lang=${i18n.language}`, newSchool, {
+    axios.post(`http://localhost:8080/api/schools/create?lang=${i18n.language}`, newSchool, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`,
       },
@@ -188,7 +195,7 @@ const SchoolsPage = () => {
     // Use school_id from selectedSchool as identifier.
   	setIsSaving(true); // disable buttons and show spinner
     axios
-      .put(`http://localhost:8080/api/schools/admin/update/${selectedSchool.school_id}?lang=${i18n.language}`, 
+      .put(`http://localhost:8080/api/schools/update/${selectedSchool.school_id}?lang=${i18n.language}`, 
 			{
         related_school_id: selectedSchool.related_school_id,
         description_en: selectedSchool.description_en,
@@ -248,7 +255,7 @@ const SchoolsPage = () => {
   			
 				axios
 					.post(
-						`http://localhost:8080/api/schools/admin/update/${selectedSchool.school_id}/status?lang=${i18n.language}`,
+						`http://localhost:8080/api/schools/update/${selectedSchool.school_id}/status?lang=${i18n.language}`,
 						{},
 						{ headers: { Authorization: `Bearer ${token}` } }
 					)
@@ -316,7 +323,7 @@ const SchoolsPage = () => {
     setLoading(true);
     const token = localStorage.getItem('token');
     axios
-      .get(`http://localhost:8080/api/schools/admin/list?lang=${i18n.language}&status_filter=-1`, {
+      .get(`http://localhost:8080/api/schools/list?lang=${i18n.language}&status_filter=-1`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -338,7 +345,7 @@ const SchoolsPage = () => {
     setLoading(true);
     const token = localStorage.getItem('token');
     axios
-      .get(`http://localhost:8080/api/schools/admin/list?lang=${i18n.language}&status_filter=-1`, {
+      .get(`http://localhost:8080/api/schools/list?lang=${i18n.language}&status_filter=-1`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

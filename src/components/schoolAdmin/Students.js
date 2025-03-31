@@ -20,10 +20,10 @@ import swal from 'sweetalert';
 import FormModal from '../../components/FormModal';
 import NoDataComponent from '../../components/NoDataComponent';
 
-const SchoolsPage = () => {
+const StudentsPage = () => {
 	const { t, i18n } = useTranslation();
-	const [users, setUsers] = useState([]);
-	const [filteredUsers, setFilteredUsers] = useState([]);
+	const [students, setStudents] = useState([]);
+	const [filteredStudents, setFilteredStudents] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState('');
 
@@ -32,26 +32,14 @@ const SchoolsPage = () => {
 	const [isFilterVisible, setIsFilterVisible] = useState(false); // For Filter modal
 	const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false); // For Update School modal
 	const [isSaving, setIsSaving] = useState(false);
-	const [roles, setRoles] = useState([]);
+	const [groups, setGroups] = useState([]);
 	const [schools, setSchools] = useState([]);
 
-	// Toggle functions
-	const toggleAddModal = () => setIsAddModalOpen((prev) => !prev);
-	const toggleUpdateModal = () => setIsUpdateModalOpen((prev) => !prev);
-	const toggleFilterVisibility = () => setIsFilterVisible((prev) => !prev);
-
-	
 	// Form state for updating a user (pre-populated when clicking actions)
-	const [selectedUser, setSelectedUser] = useState(null);
-	// Temporary filters state (keys must match user object properties)
-	const [tempFilters, setTempFilters] = useState({
-		school_id: '',
-		full_name: '',
-		username: '',
-		role: '',
-	});
+	const [selectedStudent, setSelectedStudent] = useState(null);
+
 	// Form state for adding a new user
-	const [newUser, setNewUser] = useState({
+	const [newStudent, setNewStudent] = useState({
 		person_id: '',
 		school_id: '',
 		role_id: '',
@@ -87,8 +75,64 @@ const SchoolsPage = () => {
 		
 	});
 
+	// Helper function to fetch groups based on school_id
+	const fetchGroupsForSchool = (schoolId) => {
+			if (!schoolId) {
+					setGroups([]);
+					return;
+			}
+			const token = localStorage.getItem('token');
+			axios
+				.get(`http://localhost:8080/api/groups/list?school_id=${schoolId}&lang=${i18n.language}`, {
+					headers: { Authorization: `Bearer ${token}` },
+				})
+				.then((response) => {
+					setGroups(response.data);
+				})
+				.catch((err) => {
+					console.error("Error fetching groups:", err);
+					setGroups([]);
+				});
+		};
+
+	// When adding a new student, fetch groups when newStudent.school_id changes
+	useEffect(() => {
+			if (newStudent.school_id) {
+				// Clear previous groups
+				setGroups([]);
+				fetchGroupsForSchool(newStudent.school_id);
+			} else {
+				setGroups([]);
+			}
+		}, [newStudent.school_id, i18n.language]);
+	
+	// Similarly, when updating a student, fetch groups when selectedStudent.school_id changes
+	useEffect(() => {
+			if (selectedStudent && selectedStudent.school_id) {
+				// Clear previous groups
+				setGroups([]);
+				fetchGroupsForSchool(selectedStudent.school_id);
+			} else {
+				setGroups([]);
+			}
+		}, [selectedStudent && selectedStudent.school_id, i18n.language]);
+
+	// Toggle functions
+	const toggleAddModal = () => setIsAddModalOpen((prev) => !prev);
+	const toggleUpdateModal = () => setIsUpdateModalOpen((prev) => !prev);
+	const toggleFilterVisibility = () => setIsFilterVisible((prev) => !prev);
+
+	
+	// Temporary filters state (keys must match user object properties)
+	const [tempFilters, setTempFilters] = useState({
+		full_name: '',
+		username: '',
+		grade_group: '',
+		commercial_name: '',
+	});
+
 	// Add user form fields to pass to the modal component
-	const addUserFormGroups = [
+	const addStudentFormGroups = [
 		{
 			groupTitle: 'user_info',
 			columns: 1,
@@ -104,7 +148,7 @@ const SchoolsPage = () => {
 								{ key: 'first_name', label: 'first_name', type: 'text', required: true },
 								{ key: 'last_name_father', label: 'last_name_father', type: 'text', required: true },
 								{ key: 'last_name_mother', label: 'last_name_mother', type: 'text', required: true },
-							]
+							],
 						},
 						{
 							groupTitle: 'user_info',
@@ -126,21 +170,30 @@ const SchoolsPage = () => {
 					key: 'school_id', 
 					label: 'school_id', 
 					type: 'select',
+					required: true,
 					options: schools.map(school => ({
 						value: school.school_id,
 						label: school.description
 					}))
 				},
 				{ 
-					key: 'role_id', 
-					label: 'role_id', 
+					key: 'group_id', 
+					label: 'group_id', 
 					type: 'select',
 					required: true,
-					options: roles.map(role => ({
-						value: role.role_id,
-						label: role.role_name
+					options: groups.map(group => ({
+						value: group.group_id,
+						label: group.grade_group+" "+group.scholar_level_name
 					}))
 				},
+			],
+		},
+		{
+			groupTitle: 'student_info',
+			columns: 2,
+			fields: [
+				{ key: 'register_id', label: 'register_id', type: 'text'},
+				{ key: 'payment_reference', label: 'payment_reference', type: 'text' },
 			],
 		},
 		{
@@ -165,14 +218,14 @@ const SchoolsPage = () => {
 				{ key: 'municipality', label: 'municipality', type: 'text' },
 				{ key: 'state', label: 'state', type: 'text' },
 				{ key: 'personal_email', label: 'personal_email', type: 'email' },
-				{ key: 'email', label: 'email', type: 'email' },
+				{ key: 'email', label: 'email', type: 'email', required: true },
 				{ key: 'phone_number', label: 'phone_number', type: 'tel' },
 			],
 		}
 	];
 
 	// Update user form fields to pass to the modal component
-	const updateUserFormGroups = [
+	const updateStudentFormGroups = [
 		{
 			groupTitle: 'user_info',
 			columns: 3,
@@ -189,39 +242,40 @@ const SchoolsPage = () => {
 				{ 
 					key: 'school_id', 
 					label: 'school_id', 
-					type: 'select', 
-					required: false, 
+					type: 'select',
+					required: true,
 					options: schools.map(school => ({
 						value: school.school_id,
 						label: school.description
 					}))
 				},
 				{ 
-					key: 'role_id', 
-					label: 'role_id', 
+					key: 'group_id', 
+					label: 'group_id', 
 					type: 'select',
 					required: true,
-					options: roles.map(role => ({
-						value: role.role_id,
-						label: role.role_name
+					options: groups.map(group => ({
+						value: group.group_id,
+						label: group.grade_group+" "+group.scholar_level_name
 					}))
 				},
+			],
+		},
+		{
+			groupTitle: 'student_info',
+			columns: 2,
+			fields: [
+				{ key: 'register_id', label: 'register_id', type: 'text'},
+				{ key: 'payment_reference', label: 'payment_reference', type: 'text' },
 			],
 		},
 		{
 			groupTitle: 'additional_info',
 			columns: 3,
 			fields: [
-				{ key: 'birth_date', label: 'birth_date', type: 'date' },
+				{ key: 'birth_date', label: 'birth_date', type: 'date'},
 				{ key: 'tax_id', label: 'tax_id', type: 'text' },
-				{
-					key: 'curp',
-					label: 'curp',
-					type: 'text',
-					// required: true,
-					pattern: '^[A-Z]{1}[AEIOU]{1}[A-Z]{2}\\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\\d|3[01])[HM](AS|BC|BS|CC|CS|CH|CL|CM|DF|DG|GT|GR|HG|JC|MC|MN|MS|NT|NL|OC|PL|QT|QR|SP|SL|SR|TC|TS|TL|VZ|YN|ZS|NE)[B-DF-HJ-NP-TV-Z]{3}[0-9A-Z]\\d$',
-					errorMessage: 'curp_id_regex_error.'
-				},
+				{ key: 'curp', label: 'curp', type: 'text' },
 			],
 		},
 		{
@@ -236,7 +290,7 @@ const SchoolsPage = () => {
 				{ key: 'municipality', label: 'municipality', type: 'text' },
 				{ key: 'state', label: 'state', type: 'text' },
 				{ key: 'personal_email', label: 'personal_email', type: 'email' },
-				{ key: 'email', label: 'email', type: 'email' },
+				{ key: 'email', label: 'email', type: 'email', required: true },
 				{ key: 'phone_number', label: 'phone_number', type: 'tel' },
 			],
 		}
@@ -246,7 +300,7 @@ const SchoolsPage = () => {
 	const handleAddUser = () => {
 		// Implement axios.post(...) to add the new user.
 		setIsSaving(true); // disable buttons and show spinner
-		axios.post(`http://localhost:8080/api/users/create?lang=${i18n.language}`, newUser, {
+		axios.post(`http://localhost:8080/api/students/create?lang=${i18n.language}`, newStudent, {
 			headers: {
 				Authorization: `Bearer ${localStorage.getItem('token')}`,
 			},
@@ -260,7 +314,7 @@ const SchoolsPage = () => {
 				// If success is true, show a success alert and close the modal.
 				swal(resData.title, resData.message, resData.type);
 				toggleAddModal();
-				fetchUsers(); // Refresh the table data
+				fetchStudents(); // Refresh the table data
 			}
 			setIsSaving(false);
 		})
@@ -274,30 +328,32 @@ const SchoolsPage = () => {
 	// Handler for updating a user: sends a PUT request with the pre-populated data
 	const handleUpdateUser = () => {
 		const token = localStorage.getItem('token');
-		// Use school_id from selectedUser as identifier.
+		// Use school_id from selectedStudent as identifier.
 		setIsSaving(true); // disable buttons and show spinner
 		axios
-			.put(`http://localhost:8080/api/users/update/${selectedUser.user_id}?lang=${i18n.language}`, 
+			.put(`http://localhost:8080/api/students/update/${selectedStudent.user_id}?lang=${i18n.language}`, 
 			{
-				school_id: selectedUser.school_id,
-				role_id: selectedUser.role_id,
-				first_name: selectedUser.first_name,
-				last_name_father: selectedUser.last_name_father,
-				last_name_mother: selectedUser.last_name_mother,
-				birth_date: selectedUser.birth_date,
-				phone_number: selectedUser.phone_number,
-				tax_id: selectedUser.tax_id,
-				curp: selectedUser.curp,
-				street: selectedUser.street,
-				ext_number: selectedUser.ext_number,
-				int_number: selectedUser.int_number,
-				suburb: selectedUser.suburb,
-				locality: selectedUser.locality,
-				municipality: selectedUser.municipality,
-				state: selectedUser.state,
-				personal_email: selectedUser.personal_email,
-				image: selectedUser.image,
-				email: selectedUser.email,
+				school_id: selectedStudent.school_id,
+				group_id: selectedStudent.group_id,
+				register_id: selectedStudent.register_id,
+				payment_reference: selectedStudent.payment_reference,
+				first_name: selectedStudent.first_name,
+				last_name_father: selectedStudent.last_name_father,
+				last_name_mother: selectedStudent.last_name_mother,
+				birth_date: selectedStudent.birth_date,
+				phone_number: selectedStudent.phone_number,
+				tax_id: selectedStudent.tax_id,
+				curp: selectedStudent.curp,
+				street: selectedStudent.street,
+				ext_number: selectedStudent.ext_number,
+				int_number: selectedStudent.int_number,
+				suburb: selectedStudent.suburb,
+				locality: selectedStudent.locality,
+				municipality: selectedStudent.municipality,
+				state: selectedStudent.state,
+				personal_email: selectedStudent.personal_email,
+				image: selectedStudent.image,
+				email: selectedStudent.email,
 			},
 			{
 				headers: {
@@ -314,7 +370,7 @@ const SchoolsPage = () => {
 				// If success is true, show a success alert and close the modal.
 				swal(resData.title, resData.message, resData.type);
 				setIsUpdateModalOpen(false);
-				fetchUsers(); // Refresh the table data after update
+				fetchStudents(); // Refresh the table data after update
 			}
 			setIsSaving(false);
 		})
@@ -341,7 +397,7 @@ const SchoolsPage = () => {
 				
 				axios
 					.post(
-						`http://localhost:8080/api/users/update/${selectedUser.user_id}/status?lang=${i18n.language}`,
+						`http://localhost:8080/api/users/update/${selectedStudent.user_id}/status?lang=${i18n.language}`,
 						{},
 						{ headers: { Authorization: `Bearer ${token}` } }
 					)
@@ -351,8 +407,8 @@ const SchoolsPage = () => {
 							swal(resData.title, resData.message, resData.type);
 						} else {
 							swal(resData.title, resData.message, resData.type);
-							// Optionally update the local status in selectedUser or re-fetch data:
-							fetchUsers();
+							// Optionally update the local status in selectedStudent or re-fetch data:
+							fetchStudents();
 							setIsUpdateModalOpen(false);
 						}
 						setIsSaving(false);
@@ -364,8 +420,8 @@ const SchoolsPage = () => {
 					});
 			} else {
 				// If user cancels, you might want to revert the switch state.
-				// For example, re-fetch selectedUser or simply do nothing.
-				fetchUsers();
+				// For example, re-fetch selectedStudent or simply do nothing.
+				fetchStudents();
 			}
 		});
 	};
@@ -379,7 +435,7 @@ const SchoolsPage = () => {
 	};
 	// Apply filters: simple filtering based on tempFilters values
 	const handleApplyFilters = () => {
-		let filtered = users;
+		let filtered = students;
 		Object.keys(tempFilters).forEach((key) => {
 			if (tempFilters[key]) {
 				filtered = filtered.filter((school) =>
@@ -387,7 +443,7 @@ const SchoolsPage = () => {
 				);
 			}
 		});
-		setFilteredUsers(filtered);
+		setFilteredStudents(filtered);
 		setIsFilterVisible(false); // Close the sidebar after applying filters
 	};
 	const handleClearFilters = () => {
@@ -397,28 +453,28 @@ const SchoolsPage = () => {
 			username: '',
 			role: '',
 		});
-		setFilteredUsers(users); // Reset to the original list
+		setFilteredStudents(students); // Reset to the original list
 	};
 
 
 	/* ------------------------------ Fetch data ------------------------------ */
 	// Common function to fetch data
-	const fetchUsers = () => {
+	const fetchStudents = () => {
 		setLoading(true);
 		const token = localStorage.getItem('token');
 		axios
-			.get(`http://localhost:8080/api/users/list?lang=${i18n.language}&status_filter=-1`, {
+			.get(`http://localhost:8080/api/students/list?lang=${i18n.language}&status_filter=-1&getRole=workers`, {
 				headers: {
 					Authorization: `Bearer ${token}`,
 				},
 			})
 			.then((response) => {
-				setUsers(response.data);
-				setFilteredUsers(response.data);
+				setStudents(response.data);
+				setFilteredStudents(response.data);
 				setLoading(false);
 			})
 			.catch((err) => {
-				console.error('Error fetching users:', err);
+				console.error('Error fetching students:', err);
 				setError(t('failed_to_fetch_data'));
 				setLoading(false);
 			});
@@ -429,14 +485,14 @@ const SchoolsPage = () => {
 		setLoading(true);
 		const token = localStorage.getItem('token');
 		axios
-			.get(`http://localhost:8080/api/users/list?lang=${i18n.language}&status_filter=-1`, {
+			.get(`http://localhost:8080/api/students/list?lang=${i18n.language}&status_filter=-1&getRole=workers`, {
 				headers: {
 					Authorization: `Bearer ${token}`,
 				},
 			})
 			.then((response) => {
-				setUsers(response.data);
-				setFilteredUsers(response.data);
+				setStudents(response.data);
+				setFilteredStudents(response.data);
 				setLoading(false);
 			})
 			.catch((err) => {
@@ -446,20 +502,6 @@ const SchoolsPage = () => {
 			});
 	}, [i18n.language, t]);
 
-	// Fetch roles
-	useEffect(() => {
-		const token = localStorage.getItem('token');
-		axios
-			.get(`http://localhost:8080/api/roles/list?lang=${i18n.language}`, {
-				headers: { Authorization: `Bearer ${token}` },
-			})
-			.then(response => {
-				setRoles(response.data);
-			})
-			.catch(err => {
-				console.error("Error fetching roles:", err);
-			});
-	}, [i18n.language]);
 
 	// Fetch schools
 	useEffect(() => {
@@ -479,11 +521,6 @@ const SchoolsPage = () => {
 	// Define columns for the datatable, including an Actions column with update trigger
 	const columns = [
 		{
-			name: t('user_id'),
-			selector: (row) => row.user_id,
-			sortable: true,
-		},
-		{
 			name: t('full_name'),
 			selector: (row) => row.full_name,
 			sortable: true,
@@ -494,8 +531,18 @@ const SchoolsPage = () => {
 			sortable: true,
 		},
 		{
-			name: t('role_name'),
-			selector: (row) => row.role_name,
+			name: t('scholar_level_name'),
+			selector: (row) => row.scholar_level_name,
+			sortable: true,
+		},
+		{
+			name: t('grade_group'),
+			selector: (row) => row.grade_group,
+			sortable: true,
+		},
+		{
+			name: t('school'),
+			selector: (row) => row.commercial_name,
 			sortable: true,
 		},
 		{
@@ -504,20 +551,10 @@ const SchoolsPage = () => {
 			sortable: true,
 		},
 		{
-			name: t('role_status'),
-			selector: (row) => row.role_status,
-			sortable: true,
-		},
-		{
-			name: t('school_status'),
-			selector: (row) => row.school_status,
-			sortable: true,
-		},
-		{
 			name: t('actions'),
 			cell: (row) => (
 				<MDBBtn flat="true" size="sm" onClick={() => {
-					setSelectedUser(row);
+					setSelectedStudent(row);
 					toggleUpdateModal();
 				}}>
 					<MDBIcon
@@ -539,20 +576,20 @@ const SchoolsPage = () => {
 	};
 
 	// Prepare CSV data
-	const csvData = filteredUsers.map((user) => ({
-		[t('user_id')]: user.user_id,
-		[t('full_name')]: user.full_name,
-		[t('username')]: user.username,
-		[t('role_name')]: user.role_name,
-		[t('address')]: user.address,
-		[t('user_status')]: user.user_status,
-		[t('role_status')]: user.role_status,
-		[t('school_status')]: user.school_status,
+	const csvData = filteredStudents.map((student) => ({
+		[t('user_id')]: student.user_id,
+		[t('full_name')]: student.full_name,
+		[t('username')]: student.username,
+		[t('address')]: student.address,
+		[t('scholar_level_name')]: student.scholar_level_name,
+		[t('grade_group')]: student.grade_group,
+		[t('commercial_name')]: student.commercial_name,
+		[t('user_status')]: student.user_status,
 	}));
 
 	const conditionalRowStyles = [
 		{
-			when: row => row.user_enabled === false, // adjust condition based on your data type
+			when: row => row.user_enabled === false ||row.role_enabled === false ||row.school_enabled === false, // adjust condition based on your data type
 			style: {
 				backgroundColor: 'rgba(255, 0, 0, 0.1)', // a light red background
 			},
@@ -568,7 +605,7 @@ const SchoolsPage = () => {
 	}
 
 	return (
-		<Layout pageTitle={t('users')}>
+		<Layout pageTitle={t('students')}>
 			<MDBContainer className="py-4">
 				{/* Header Row with Export, Add, Filter buttons */}
 				<MDBRow>
@@ -577,21 +614,21 @@ const SchoolsPage = () => {
 							<MDBCardHeader>
 								<MDBRow className="d-flex justify-content-between align-items-center">
 									<MDBCol className="col-auto">
-										{t('users_list')}
+										{t('students_list')}
 									</MDBCol>
 									
 									<MDBCol className="col-auto d-flex">
 										{/* Export button */}
-										<MDBBtn color='light' rippleColor='dark'>
 											<CSVLink 
 												data={csvData} 
-												filename="users.csv"
+												filename="students.csv"
 												style={{ textDecoration: 'none', color: 'inherit' }}
 											>
-												<MDBIcon fas icon="download" className="me-1" />
-												{t('export')}
-											</CSVLink>
-										</MDBBtn>
+											<MDBBtn color='light' rippleColor='dark'>
+													<MDBIcon fas icon="download" className="me-1" />
+													{t('export')}
+											</MDBBtn>
+										</CSVLink>
 										{/* Add button */}
 										<MDBBtn color='light' rippleColor='dark' onClick={toggleAddModal}>
 											<MDBIcon fas icon="add" className="me-1" />
@@ -609,7 +646,7 @@ const SchoolsPage = () => {
 								<DataTable
 									// title={t('list')}
 									columns={columns}
-									data={filteredUsers}
+									data={filteredStudents}
 									progressPending={loading}
 									pagination
 									highlightOnHover
@@ -631,11 +668,11 @@ const SchoolsPage = () => {
 			<FormModal
 				open={isAddModalOpen}
 				onClose={toggleAddModal}
-				formGroups={addUserFormGroups}
-				data={newUser}
-				setData={setNewUser}
+				formGroups={addStudentFormGroups}
+				data={newStudent}
+				setData={setNewStudent}
 				onSave={handleAddUser}
-				title={t('add_user')}
+				title={t('add_student')}
 				size="xl"
 				idPrefix="create_"
 				isSaving={isSaving}
@@ -645,11 +682,11 @@ const SchoolsPage = () => {
 			<FormModal
 				open={isUpdateModalOpen}
 				onClose={toggleUpdateModal}
-				formGroups={updateUserFormGroups}
-				data={selectedUser}
-				setData={setSelectedUser}
+				formGroups={updateStudentFormGroups}
+				data={selectedStudent}
+				setData={setSelectedStudent}
 				onSave={handleUpdateUser}
-				title={t('update_users')}
+				title={t('update_student')}
 				size="xl"
 				idPrefix="update_"
 				isSaving={isSaving}
@@ -675,4 +712,4 @@ const SchoolsPage = () => {
 	);
 };
 
-export default SchoolsPage;
+export default StudentsPage;

@@ -26,7 +26,7 @@ const Layout = ({ pageTitle, children }) => {
   const role = user ? user.roleName : null;
 
   // Adjust main container margin based on sidebar width
-  const sidebarWidth = sidebarCollapsed ? '80px' : '250px';
+  const sidebarWidth = sidebarCollapsed ? '80px' : '200px';
 
   return (
     <div style={{ display: 'flex', height: '100vh' }}>
