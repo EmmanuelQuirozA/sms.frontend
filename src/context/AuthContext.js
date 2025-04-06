@@ -5,15 +5,7 @@ export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-
-  // Logout function that clears localStorage and updates state
-  const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    setUser(null);
-    // Optionally, redirect to login page (or use a navigation hook in your components)
-    window.location.href = '/login';
-  };
+  const [loading, setLoading] = useState(true);
 
   // On mount, check localStorage for a token/user
   useEffect(() => {
@@ -29,6 +21,7 @@ export const AuthProvider = ({ children }) => {
           if (userData) {
             setUser(JSON.parse(userData));
           }
+          setLoading(false);
           // Calculate time remaining until token expiration
           const timeout = decoded.exp * 1000 - Date.now();
           const timer = setTimeout(() => {
@@ -49,11 +42,19 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('token', data.token);
     localStorage.setItem('user', JSON.stringify(data.user));
     setUser(data.user);
-    // Optionally, set a logout timer here as well if you want to handle token expiration immediately
+  };
+
+  // Logout function that clears localStorage and updates state
+  const logout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setUser(null);
+    // Optionally, redirect to login page (or use a navigation hook in your components)
+    window.location.href = '/login';
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

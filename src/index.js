@@ -11,6 +11,7 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js'; // This imports Bootstrap's 
 import 'bootstrap-icons/font/bootstrap-icons.css'; // For Bootstrap Icons
 import 'mdb-react-ui-kit/dist/css/mdb.min.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
+import 'daterangepicker/daterangepicker.css';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

@@ -15,9 +15,9 @@ import {
 import DataTable from 'react-data-table-component';
 import { CSVLink } from 'react-csv';
 import { useTranslation } from 'react-i18next';
-import FiltersSidebar from '../../components/FiltersSidebar';
+import FiltersSidebar from '../common/FiltersSidebar';
 import swal from 'sweetalert';
-import FormModal from '../../components/FormModal';
+import FormModal from '../common/FormModal';
 import NoDataComponent from '../../components/NoDataComponent';
 
 const SchoolsPage = () => {

@@ -1,13 +1,30 @@
-// src/components/UnauthorizedPage.js
-import React from 'react';
+import React, { useContext } from 'react';
 import { MDBContainer, MDBRow, MDBCol, MDBBtn } from 'mdb-react-ui-kit';
 import { useNavigate } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
 
 const UnauthorizedPage = () => {
+  const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleBackHome = () => {
-    navigate('/');
+    if (user && user.roleName) {
+      switch (user.roleName) {
+        case 'ADMIN':
+          navigate('/admin/dashboard');
+          break;
+        case 'SCHOOL_ADMIN':
+          navigate('/schooladmin/dashboard');
+          break;
+        case 'STUDENT':
+          navigate('/student/dashboard');
+          break;
+        default:
+          navigate('/');
+      }
+    } else {
+      navigate('/');
+    }
   };
 
   return (

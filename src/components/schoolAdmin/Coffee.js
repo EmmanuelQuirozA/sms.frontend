@@ -27,29 +27,25 @@ const Coffee = () => {
   const products = [
     { 
       id: 1, 
-      name: 'Burger', 
-      description: 'Juicy beef burger with fresh lettuce, tomato, and cheese.', 
+      name: '243 - Burger', 
       price: 5.99,
       image: 'https://t4.ftcdn.net/jpg/04/90/59/73/360_F_490597390_Tcz55Gxb0SbSg7Z73XIwnraSMGf5YMbu.jpg'
     },
     { 
       id: 2, 
-      name: 'Fries', 
-      description: 'Crispy golden fries.', 
+      name: '142 - Fries', 
       price: 2.99,
       image: 'https://recipe30.com/wp-content/uploads/2017/06/French-fries-848x477.jpg'
     },
     { 
       id: 3, 
-      name: 'Soda', 
-      description: 'Refreshing soft drink.', 
+      name: '133 - Soda', 
       price: 1.50,
       image: 'https://thumbs.dreamstime.com/b/soda-oscura-de-restauraci%C3%B3n-burbujeante-129296716.jpg'
     },
     { 
       id: 4, 
-      name: 'Pizza', 
-      description: 'Cheesy pepperoni pizza slice.', 
+      name: '441 - Pizza', 
       price: 3.99,
       image: 'https://www.novachef.es/media/images/pizza-pepperoni.jpg'
     },
@@ -143,12 +139,19 @@ const Coffee = () => {
                           <MDBCardHeader className="bg-light">
                             <strong>{product.name}</strong>
                           </MDBCardHeader>
-                          <MDBCardBody>
-                            <p>{product.description}</p>
-                            <p><strong>${product.price.toFixed(2)}</strong></p>
-                            <MDBBtn size="sm" onClick={() => addToCart(product)}>
-                              <MDBIcon fas icon="plus" className="me-1" /> Add
-                            </MDBBtn>
+                          <MDBCardBody className='pb-1'>
+														<MDBRow className="d-flex justify-content-between">
+														<MDBCol className="col-auto">
+															<p><strong>${product.price.toFixed(2)}</strong></p>
+														</MDBCol>
+														<MDBCol className="col-auto">
+															<MDBBtn size="sm" onClick={() => addToCart(product)}>
+																<MDBIcon fas icon="plus" className="me-1" /> Add
+															</MDBBtn>
+														</MDBCol>
+														</MDBRow>
+															
+                            
                           </MDBCardBody>
                         </MDBCard>
                       </MDBCol>

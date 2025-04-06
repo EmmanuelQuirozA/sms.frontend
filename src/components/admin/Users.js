@@ -15,12 +15,12 @@ import {
 import DataTable from 'react-data-table-component';
 import { CSVLink } from 'react-csv';
 import { useTranslation } from 'react-i18next';
-import FiltersSidebar from '../../components/FiltersSidebar';
+import FiltersSidebar from '../common/FiltersSidebar';
 import swal from 'sweetalert';
-import FormModal from '../../components/FormModal';
+import FormModal from '../common/FormModal';
 import NoDataComponent from '../../components/NoDataComponent';
 
-const SchoolsPage = () => {
+const UsersPage = () => {
 	const { t, i18n } = useTranslation();
 	const [users, setUsers] = useState([]);
 	const [filteredUsers, setFilteredUsers] = useState([]);
@@ -52,39 +52,27 @@ const SchoolsPage = () => {
 	});
 	// Form state for adding a new user
 	const [newUser, setNewUser] = useState({
-		person_id: '',
-		school_id: '',
-		role_id: '',
-		email: '',
-		username: '',
-		role_name: '',
-		full_name: '',
-		address: '',
-		commercial_name: '',
-		business_name: '',
-		first_name: '',
-		last_name_father: '',
-		last_name_mother: '',
-		birth_date: '',
-		phone_number: '',
-		tax_id: '',
-		street: '',
-		ext_number: '',
-		int_number: '',
-		suburb: '',
-		locality: '',
-		municipality: '',
-		state: '',
-		personal_email: '',
-		image: '',
-		user_enabled: '',
-		role_enabled: '',
-		school_enabled: '',
-		birth_date_formated: '',
-		user_status: '',
-		role_status: '',
-		school_status: ''
-		
+		role_id: null,
+		school_id: null,
+		first_name: null,
+		last_name_father: null,
+		last_name_mother: null,
+		birth_date: null,
+		phone_number: null,
+		tax_id: null,
+		curp: null,
+		street: null,
+		ext_number: null,
+		int_number: null,
+		suburb: null,
+		locality: null,
+		municipality: null,
+		state: null,
+		personal_email: null,
+		image: null,
+		email: null,
+		username: null,
+		password: null
 	});
 
 	// Add user form fields to pass to the modal component
@@ -104,7 +92,7 @@ const SchoolsPage = () => {
 								{ key: 'first_name', label: 'first_name', type: 'text', required: true },
 								{ key: 'last_name_father', label: 'last_name_father', type: 'text', required: true },
 								{ key: 'last_name_mother', label: 'last_name_mother', type: 'text', required: true },
-							]
+							],
 						},
 						{
 							groupTitle: 'user_info',
@@ -165,7 +153,7 @@ const SchoolsPage = () => {
 				{ key: 'municipality', label: 'municipality', type: 'text' },
 				{ key: 'state', label: 'state', type: 'text' },
 				{ key: 'personal_email', label: 'personal_email', type: 'email' },
-				{ key: 'email', label: 'email', type: 'email' },
+				{ key: 'email', label: 'email', type: 'email', required: true },
 				{ key: 'phone_number', label: 'phone_number', type: 'tel' },
 			],
 		}
@@ -190,7 +178,6 @@ const SchoolsPage = () => {
 					key: 'school_id', 
 					label: 'school_id', 
 					type: 'select', 
-					required: false, 
 					options: schools.map(school => ({
 						value: school.school_id,
 						label: school.description
@@ -236,7 +223,7 @@ const SchoolsPage = () => {
 				{ key: 'municipality', label: 'municipality', type: 'text' },
 				{ key: 'state', label: 'state', type: 'text' },
 				{ key: 'personal_email', label: 'personal_email', type: 'email' },
-				{ key: 'email', label: 'email', type: 'email' },
+				{ key: 'email', label: 'email', type: 'email', required: true },
 				{ key: 'phone_number', label: 'phone_number', type: 'tel' },
 			],
 		}
@@ -675,4 +662,4 @@ const SchoolsPage = () => {
 	);
 };
 
-export default SchoolsPage;
+export default UsersPage;

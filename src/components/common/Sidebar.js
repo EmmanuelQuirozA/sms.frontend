@@ -19,21 +19,21 @@ const Sidebar = ({ role, onLogout, collapsed, toggleSidebar }) => {
           {
             level: 'Dashboards',
             items: [
-              { name: 'dashboard', icon: 'bi bi-grid', link: '/admin/dashboard' },
+              { name: 'dashboard', icon: 'bi bi-grid', link: '/dashboard' },
             ],
           },
           {
             level: 'Management',
             items: [
-              { name: 'schools', icon: 'bi bi-building', link: '/admin/schools' },
-              { name: 'finance', icon: 'bi bi-coin', link: '/admin/finance', comingSoon: true },
-              { name: 'users', icon: 'fa-solid fa-user-graduate', link: '/admin/users' },
+              { name: 'schools', icon: 'bi bi-building', link: '/schools' },
+              { name: 'finance', icon: 'bi bi-coin', link: '/finance', comingSoon: true },
+              { name: 'users', icon: 'fa-solid fa-user-graduate', link: '/users' },
             ],
           },
           {
             level: 'Settings',
             items: [
-              { name: 'settings', icon: 'bi bi-gear', link: '/admin/settings', comingSoon: true },
+              { name: 'settings', icon: 'bi bi-gear', link: '/settings', comingSoon: true },
             ],
           },
         ];
@@ -42,28 +42,34 @@ const Sidebar = ({ role, onLogout, collapsed, toggleSidebar }) => {
           {
             level: 'Dashboards',
             items: [
-              { name: 'dashboard', icon: 'bi bi-house-fill', link: '/schooladmin/dashboard' },
+              { name: 'dashboard', icon: 'bi bi-house-fill', link: '/dashboard' },
             ],
           },
           {
             level: 'Management',
             items: [
-              { name: 'finance', icon: 'bi bi-coin', link: '/schooladmin/finance', comingSoon: true },
-              { name: 'schools', icon: 'bi bi-building', link: '/schooladmin/schools' },
-              { name: 'users', icon: 'bi bi-person-badge', link: '/schooladmin/users' },
-              { name: 'teachers', icon: 'bi bi-briefcase', link: '/schooladmin/teachers' },
-              { name: 'students', icon: 'bi bi-mortarboard', link: '/schooladmin/students' },
-              { name: 'parents', icon: 'bi bi-people-fill', link: '/schooladmin/parents', comingSoon: true },
-              { name: 'subjects', icon: 'bi bi-journal-text', link: '/schooladmin/subjects', comingSoon: true },
-              { name: 'classes', icon: 'bi bi-card-checklist', link: '/schooladmin/classes', comingSoon: true },
-              { name: 'lessons', icon: 'bi bi-book', link: '/schooladmin/lessons', comingSoon: true },
-              { name: 'exams', icon: 'bi bi-pencil-square', link: '/schooladmin/exams', comingSoon: true },
-              { name: 'assignments', icon: 'bi bi-file-earmark-text', link: '/schooladmin/assignments', comingSoon: true },
-              { name: 'results', icon: 'bi bi-bar-chart-line', link: '/schooladmin/results', comingSoon: true },
-              { name: 'attendance', icon: 'bi bi-calendar-check', link: '/schooladmin/attendance', comingSoon: true },
-              { name: 'events', icon: 'bi bi-calendar-event', link: '/schooladmin/events', comingSoon: true },
-              { name: 'messages', icon: 'bi bi-chat-dots', link: '/schooladmin/messages', comingSoon: true },
-              { name: 'announcements', icon: 'bi bi-megaphone', link: '/schooladmin/announcements', comingSoon: true },
+              { name: 'finance', icon: 'bi bi-coin', link: '/paymentreports' },
+              { name: 'schools', icon: 'bi bi-building', link: '/schools' },
+              { name: 'classes', icon: 'bi bi-card-checklist', link: '/classes' },
+              { name: 'users', icon: 'bi bi-person-badge', link: '/users' },
+              { name: 'teachers', icon: 'bi bi-briefcase', link: '/teachers' },
+              { name: 'students', icon: 'bi bi-mortarboard', link: '/students' },
+              { name: 'parents', icon: 'bi bi-people-fill', link: '/parents', comingSoon: true },
+              { name: 'subjects', icon: 'bi bi-journal-text', link: '/subjects', comingSoon: true },
+              { name: 'lessons', icon: 'bi bi-book', link: '/lessons', comingSoon: true },
+              { name: 'exams', icon: 'bi bi-pencil-square', link: '/exams', comingSoon: true },
+              { name: 'assignments', icon: 'bi bi-file-earmark-text', link: '/assignments', comingSoon: true },
+              { name: 'results', icon: 'bi bi-bar-chart-line', link: '/results', comingSoon: true },
+              { name: 'attendance', icon: 'bi bi-calendar-check', link: '/attendance', comingSoon: true },
+              { name: 'events', icon: 'bi bi-calendar-event', link: '/events', comingSoon: true },
+              { name: 'messages', icon: 'bi bi-chat-dots', link: '/messages', comingSoon: true },
+              { name: 'announcements', icon: 'bi bi-megaphone', link: '/announcements', comingSoon: true },
+            ],
+          },
+          {
+            level: 'apps',
+            items: [
+              { name: 'coffee', icon: 'bi bi-cup-hot', link: '/coffee' },
             ],
           },
           {

@@ -13,11 +13,10 @@ import {
   MDBTooltip,
   MDBBtn
 } from 'mdb-react-ui-kit';
-import FormModal from '../../components/FormModal';
+import FormModal from '../common/FormModal';
 import { useTranslation } from 'react-i18next';
 import swal from 'sweetalert';
-import MassTeachersUploadModal from '../MassTeachersUploadModal';
-import MassStudentsUploadModal from '../MassStudentsUploadModal';
+import MassTeachersUploadModal from '../common/MassTeachersUploadModal';
 
 const SchoolsPage = () => {
   const { t, i18n } = useTranslation();
@@ -27,10 +26,8 @@ const SchoolsPage = () => {
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isMassTeachersUploadModalOpen, setIsMassTeachersUploadModalOpen] = useState(false);
-  const [isMassStudentsUploadModalOpen, setIsMassStudentsUploadModalOpen] = useState(false);
   
   // New state to track the selected school for mass students upload
-  const [selectedSchoolForMassUpload, setSelectedSchoolForMassUpload] = useState(null);
   const [selectedSchool, setSelectedSchool] = useState(null);
 
   const toggleUpdateModal = () => setIsUpdateModalOpen(prev => !prev);
@@ -189,20 +186,6 @@ const SchoolsPage = () => {
                       {school.enabled ? "" : (<small>{t("school_disabled")}</small>)}
                     </MDBCol>
                     <MDBCol className="col-auto">
-                      {/* Import Students button */}
-                      <MDBBtn 
-                        flat="true" 
-                        size="sm" 
-                        color="light" 
-                        rippleColor="dark" 
-                        onClick={() => {
-                          setSelectedSchoolForMassUpload(school);
-                          setIsMassStudentsUploadModalOpen(true);
-                        }}
-                      >
-                        <MDBIcon fas icon="upload" className="me-1" />
-                        {t('import_students')}
-                      </MDBBtn>
                       {/* Import Teachers button */}
                       <MDBBtn 
                         flat="true" 
@@ -277,16 +260,6 @@ const SchoolsPage = () => {
           ))}
         </MDBRow>
       </MDBContainer>
-
-      {/* Render the modal once using the selected school for mass students upload */}
-      {isMassStudentsUploadModalOpen && selectedSchoolForMassUpload && (
-        <MassStudentsUploadModal 
-          open={isMassStudentsUploadModalOpen} 
-          onClose={() => setIsMassStudentsUploadModalOpen(false)} 
-          school_id={selectedSchoolForMassUpload.school_id}
-          onUploadSuccess={() => fetchSchools()}
-        />
-      )}
 
       {/* Render mass teachers upload modal similarly */}
       {isMassTeachersUploadModalOpen && (

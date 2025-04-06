@@ -15,9 +15,9 @@ import {
 import DataTable from 'react-data-table-component';
 import { CSVLink } from 'react-csv';
 import { useTranslation } from 'react-i18next';
-import FiltersSidebar from '../../components/FiltersSidebar';
+import FiltersSidebar from '../common/FiltersSidebar';
 import swal from 'sweetalert';
-import FormModal from '../../components/FormModal';
+import FormModal from '../common/FormModal';
 import NoDataComponent from '../../components/NoDataComponent';
 
 const StudentsPage = () => {
@@ -83,7 +83,7 @@ const StudentsPage = () => {
 			}
 			const token = localStorage.getItem('token');
 			axios
-				.get(`http://localhost:8080/api/groups/list?school_id=${schoolId}&lang=${i18n.language}`, {
+				.get(`http://localhost:8080/api/groups/list?school_id=${schoolId}&lang=${i18n.language}&status_filter=1`, {
 					headers: { Authorization: `Bearer ${token}` },
 				})
 				.then((response) => {
@@ -126,10 +126,21 @@ const StudentsPage = () => {
 	// Temporary filters state (keys must match user object properties)
 	const [tempFilters, setTempFilters] = useState({
 		full_name: '',
+		payment_reference: '',
 		username: '',
 		grade_group: '',
 		commercial_name: '',
 	});
+	const handleClearFilters = () => {
+		setTempFilters({
+			full_name: '',
+			payment_reference: '',
+			username: '',
+			grade_group: '',
+			commercial_name: '',
+		});
+		setFilteredStudents(students); // Reset to the original list
+	};
 
 	// Add user form fields to pass to the modal component
 	const addStudentFormGroups = [
@@ -183,7 +194,7 @@ const StudentsPage = () => {
 					required: true,
 					options: groups.map(group => ({
 						value: group.group_id,
-						label: group.grade_group+" "+group.scholar_level_name
+						label: group.generation+" | "+group.grade_group+" | "+group.scholar_level_name
 					}))
 				},
 			],
@@ -192,8 +203,8 @@ const StudentsPage = () => {
 			groupTitle: 'student_info',
 			columns: 2,
 			fields: [
-				{ key: 'register_id', label: 'register_id', type: 'text'},
-				{ key: 'payment_reference', label: 'payment_reference', type: 'text' },
+				{ key: 'register_id', label: 'register_id', type: 'text', required: true},
+				{ key: 'payment_reference', label: 'payment_reference', type: 'text', required: true },
 			],
 		},
 		{
@@ -256,7 +267,7 @@ const StudentsPage = () => {
 					required: true,
 					options: groups.map(group => ({
 						value: group.group_id,
-						label: group.grade_group+" "+group.scholar_level_name
+						label: group.generation+" | "+group.grade_group+" | "+group.scholar_level_name
 					}))
 				},
 			],
@@ -446,15 +457,6 @@ const StudentsPage = () => {
 		setFilteredStudents(filtered);
 		setIsFilterVisible(false); // Close the sidebar after applying filters
 	};
-	const handleClearFilters = () => {
-		setTempFilters({
-			school_id: '',
-			full_name: '',
-			username: '',
-			role: '',
-		});
-		setFilteredStudents(students); // Reset to the original list
-	};
 
 
 	/* ------------------------------ Fetch data ------------------------------ */
@@ -526,13 +528,18 @@ const StudentsPage = () => {
 			sortable: true,
 		},
 		{
-			name: t('username'),
-			selector: (row) => row.username,
+			name: t('payment_reference'),
+			selector: (row) => row.payment_reference,
 			sortable: true,
 		},
 		{
 			name: t('scholar_level_name'),
 			selector: (row) => row.scholar_level_name,
+			sortable: true,
+		},
+		{
+			name: t('generation'),
+			selector: (row) => row.generation,
 			sortable: true,
 		},
 		{
@@ -589,7 +596,7 @@ const StudentsPage = () => {
 
 	const conditionalRowStyles = [
 		{
-			when: row => row.user_enabled === false ||row.role_enabled === false ||row.school_enabled === false, // adjust condition based on your data type
+			when: row => row.user_enabled === false ||row.role_enabled === false ||row.group_enabled === false ||row.school_enabled === false, // adjust condition based on your data type
 			style: {
 				backgroundColor: 'rgba(255, 0, 0, 0.1)', // a light red background
 			},
@@ -619,11 +626,11 @@ const StudentsPage = () => {
 									
 									<MDBCol className="col-auto d-flex">
 										{/* Export button */}
-											<CSVLink 
-												data={csvData} 
-												filename="students.csv"
-												style={{ textDecoration: 'none', color: 'inherit' }}
-											>
+										<CSVLink 
+											data={csvData} 
+											filename="students.csv"
+											style={{ textDecoration: 'none', color: 'inherit' }}
+										>
 											<MDBBtn color='light' rippleColor='dark'>
 													<MDBIcon fas icon="download" className="me-1" />
 													{t('export')}
@@ -637,7 +644,7 @@ const StudentsPage = () => {
 										{/* Filter button */}
 										<MDBBtn color='light' rippleColor='dark'  onClick={toggleFilterVisibility}>
 											<MDBIcon fas icon="filter" className="me-1" />
-							{t('filter')} {getActiveFilterCount() > 0 ? `(${getActiveFilterCount()})` : ''}
+											{t('filter')} {getActiveFilterCount() > 0 ? `(${getActiveFilterCount()})` : ''}
 										</MDBBtn>
 									</MDBCol>
 								</MDBRow>

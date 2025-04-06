@@ -10,7 +10,7 @@ import swal from 'sweetalert';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
 
-const MassUploadModal = ({ open, onClose, onUploadSuccess, school_id }) => {
+const MassUploadModal = ({ open, onClose, onUploadSuccess, school_id, group_id }) => {
 	const { t, i18n } = useTranslation();
 	const [parsedData, setParsedData] = useState([]);
 	const [validationErrors, setValidationErrors] = useState([]);
@@ -27,9 +27,6 @@ const MassUploadModal = ({ open, onClose, onUploadSuccess, school_id }) => {
 		}
 		if (!row.last_name_mother || row.last_name_mother.trim() === '') {
 			errors.push(`${t('last_name_mother')} ${t('is_required')} (Row ${index + 1})`);
-		}
-		if (!row.birth_date || row.birth_date.trim() === '') {
-			errors.push(`${t('birth_date')} ${t('is_required')} (Row ${index + 1})`);
 		}
 		if (!row.username || row.username.trim() === '') {
 			errors.push(`${t('username')} ${t('is_required')} (Row ${index + 1})`);
@@ -82,9 +79,9 @@ const MassUploadModal = ({ open, onClose, onUploadSuccess, school_id }) => {
 						const data = results.data.map(row => ({
 							...row,
 							// Set defaults
-							role_id: row.role_id ? row.role_id : 4, //Student role ID
+							role_id: 4, //Student role ID
 							school_id: row.school_id ? row.school_id : school_id,
-							group_id: row.group_id ? row.group_id : 2
+							group_id: row.group_id ? row.group_id : group_id
 						}));
 						let errors = [];
 						data.forEach((row, index) => {

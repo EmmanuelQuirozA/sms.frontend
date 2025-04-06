@@ -4,26 +4,22 @@ import { AuthContext } from './context/AuthContext';
 
 //Publics
 import Login from './components/auth/Login';
-import Dashboard from './components/Dashboard';
 import ProtectedRoute from './routes/ProtectedRoute';
 
-// Admin
-import AdminDashboard from './components/admin/Dashboard';
-import Schools from './components/admin/Schools';
-import Users from './components/admin/Users';
+//Routers
+import DashboardRouter from './components/DashboardRouter';
+import SchoolsRouter from './components/SchoolsRouter';
+import UsersRouter from './components/UsersRouter';
+import SettingsRouter from './components/SettingsRouter';
 
 
 //School Admin
-import SchoolAdminDashboard from './components/schoolAdmin/Dashboard';
-import SchoolAdminSchools from './components/schoolAdmin/Schools';
-import SchoolAdminUsers from './components/schoolAdmin/Users';
 import SchoolAdminTeachers from './components/schoolAdmin/Teachers';
 import SchoolAdminStudents from './components/schoolAdmin/Students';
 import SchoolAdminCoffee from './components/schoolAdmin/Coffee';
+import SchoolAdminPaymentReports from './components/schoolAdmin/PaymentReports';
+import SchoolAdminClasses from './components/schoolAdmin/Classes';
 
-
-//Student
-import StudentDashboard from './components/student/Dashboard';
 
 //Others, helpers and commons
 import Footer from './components/common/Footer';
@@ -48,31 +44,86 @@ function App() {
     <Router>
         <Routes>
           {/* Public Routes */}
-          <Route path="/" element={<Dashboard />} />
           <Route path="/login" element={!user ? <Login /> : <Navigate to={getHomeRoute(user)} />} />
         
-          {/* Protected Routes */}
-            {/* Admin */}
-            <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
-              <Route path="/admin/dashboard" element={<AdminDashboard />} />
-              <Route path="/admin/schools" element={<Schools />} />
-              <Route path="/admin/users" element={<Users />} />
-            </Route>
+          {/* 
+          Dashboard     --| School Admin | Teachers | Students | Finance | Admin |           
+          Settings      --| School Admin | Teachers | Students | Finance | Admin |
 
-            {/* School Admin */}
-            <Route element={<ProtectedRoute allowedRoles={['SCHOOL_ADMIN']} />}>
-              <Route path="/schooladmin/dashboard" element={<SchoolAdminDashboard />} />
-              <Route path="/schooladmin/schools" element={<SchoolAdminSchools />} />
-              <Route path="/schooladmin/users" element={<SchoolAdminUsers />} />
-              <Route path="/schooladmin/teachers" element={<SchoolAdminTeachers />} />
-              <Route path="/schooladmin/students" element={<SchoolAdminStudents />} />
-              <Route path="/schooladmin/coffee" element={<SchoolAdminCoffee />} />
-              </Route>
+          Finance       --| School Admin |          |          | Finance |       |  
 
-            {/* Student */}
-            <Route element={<ProtectedRoute allowedRoles={['STUDENT']} />}>
-              <Route path="/student/dashboard" element={<StudentDashboard />} />
-            </Route>
+          Schools       --| School Admin |          |          |         | Admin |           
+          Users         --| School Admin |          |          |         | Admin |    
+
+          Teachers      --| School Admin |          |          |         |       | 
+
+          Students      --| School Admin | Teachers |          | Finance |       |  
+
+          Parents       --| School Admin | Teachers |          |         |       |   
+
+          Subjects      --| School Admin | Teachers | Students |         |       |      
+          Classes       --| School Admin | Teachers | Students |         |       |      
+          Lessons       --| School Admin | Teachers | Students |         |       |      
+          Examns        --| School Admin | Teachers | Students |         |       |      
+          Assignments   --| School Admin | Teachers | Students |         |       |      
+          Results       --| School Admin | Teachers | Students |         |       |      
+          Attendance    --| School Admin | Teachers | Students |         |       |      
+          Events        --| School Admin | Teachers | Students |         |       |      
+          Messages      --| School Admin | Teachers | Students |         |       |      
+          Announcements --| School Admin | Teachers | Students |         |       |      
+
+          Kitchen       --| School Admin |          |          |         | Admin | Kitchen
+          */}
+
+          <Route element={<ProtectedRoute allowedRoles={['ADMIN', 'SCHOOL_ADMIN', 'STUDENT', 'TEACHERS', 'STUDENTS', 'FINANCE']} />}>
+            <Route path="/dashboard" element={<DashboardRouter />} />
+            <Route path="/settings" element={<SettingsRouter />} />
+          </Route>
+
+          <Route element={<ProtectedRoute allowedRoles={['ADMIN', 'SCHOOL_ADMIN', 'FINANCE']} />}>
+            <Route path="/finance" element={<DashboardRouter />} />
+          </Route>
+
+          <Route element={<ProtectedRoute allowedRoles={['ADMIN', 'SCHOOL_ADMIN']} />}>
+            <Route path="/schools" element={<SchoolsRouter />} />
+            <Route path="/users" element={<UsersRouter />} />
+          </Route>
+          
+          <Route element={<ProtectedRoute allowedRoles={['SCHOOL_ADMIN']} />}>
+            <Route path="/teachers" element={<SchoolAdminTeachers />} />
+            <Route path="/paymentreports" element={<SchoolAdminPaymentReports />} />
+          </Route>
+
+          <Route element={<ProtectedRoute allowedRoles={['SCHOOL_ADMIN', 'TEACHERS', 'FINANCE']} />}>
+            <Route path="/students" element={<SchoolAdminStudents />} />
+          </Route>
+
+          <Route element={<ProtectedRoute allowedRoles={['SCHOOL_ADMIN', 'TEACHERS']} />}>
+            {/* <Route path="/parents" element={<ParentsRouter />} /> */}
+          </Route>
+
+          <Route element={<ProtectedRoute allowedRoles={['SCHOOL_ADMIN', 'TEACHERS', 'STUDENTS']} />}>
+            <Route path="/classes" element={<SchoolAdminClasses />} />
+            {/* 
+            <Route path="/subjects" element={<SubjectsRouter />} />
+            <Route path="/classes" element={<ClassesRouter />} />
+            <Route path="/lessons" element={<LessonsRouter />} />
+            <Route path="/examns" element={<ExamnsRouter />} />
+            <Route path="/assignments" element={<AssignmentsRouter />} />
+            <Route path="/results" element={<ResultsRouter />} />
+            <Route path="/attendance" element={<AttendanceRouter />} />
+            <Route path="/events" element={<EventsRouter />} />
+            <Route path="/messages" element={<MessagesRouter />} />
+            <Route path="/announcements" element={<AnnouncementsRouter />} /> 
+            */}
+          </Route>
+
+          <Route element={<ProtectedRoute allowedRoles={['ADMIN', 'SCHOOL_ADMIN', 'KITCHEN']} />}>
+            <Route path="/coffee" element={<SchoolAdminCoffee />} />
+          </Route>
+
+          <Route element={<ProtectedRoute allowedRoles={['SCHOOL_ADMIN', 'FINANCE']} />}>
+          </Route>
 
           {/* Fallback for unauthorized access */}
           <Route path="/unauthorized" element={<Unauthorized />} />

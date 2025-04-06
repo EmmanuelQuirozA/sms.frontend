@@ -217,6 +217,7 @@ const FormModal = ({
               }
               required={field.required || false}
               pattern={field.pattern || undefined}
+              disabled={field.disabled || false}
             />
           </MDBValidationItem>
         </MDBCol>
@@ -260,6 +261,8 @@ const FormModal = ({
             </MDBModalBody>
             </MDBValidation>
             <MDBModalFooter>
+              {/* Left-aligned buttons. Not implemented, just for future needs*/}
+              {/* Right-aligned buttons */}
               {changeStatus && (
                 <MDBSwitch  
                   id="statusSwitch"
@@ -272,10 +275,11 @@ const FormModal = ({
               <MDBBtn color="secondary" onClick={onClose} disabled={isSaving}>
                 {isSaving ? <MDBSpinner size="sm" /> : t('close')}
               </MDBBtn>
-              {/* Change the save button to type submit */}
-              <MDBBtn type="submit" color="primary" disabled={isSaving} form="validationForm">
-                {isSaving ? <MDBSpinner size="sm" /> : t('save_changes')}
-              </MDBBtn>
+              {onSave && (
+                <MDBBtn type="submit" color="primary" disabled={isSaving} form="validationForm">
+                  {isSaving ? <MDBSpinner size="sm" /> : t('save_changes')}
+                </MDBBtn>
+              )}
             </MDBModalFooter>
           
         </MDBModalContent>

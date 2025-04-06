@@ -15,9 +15,9 @@ import {
 import DataTable from 'react-data-table-component';
 import { CSVLink } from 'react-csv';
 import { useTranslation } from 'react-i18next';
-import FiltersSidebar from '../../components/FiltersSidebar';
+import FiltersSidebar from '../common/FiltersSidebar';
 import swal from 'sweetalert';
-import FormModal from '../../components/FormModal';
+import FormModal from '../common/FormModal';
 import NoDataComponent from '../../components/NoDataComponent';
 
 const UsersPage = () => {
@@ -213,9 +213,16 @@ const UsersPage = () => {
 			groupTitle: 'additional_info',
 			columns: 3,
 			fields: [
-				{ key: 'birth_date', label: 'birth_date', type: 'date'},
+				{ key: 'birth_date', label: 'birth_date', type: 'date' },
 				{ key: 'tax_id', label: 'tax_id', type: 'text' },
-				{ key: 'curp', label: 'curp', type: 'text' },
+				{
+					key: 'curp',
+					label: 'curp',
+					type: 'text',
+					// required: true,
+					pattern: '^[A-Z]{1}[AEIOU]{1}[A-Z]{2}\\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\\d|3[01])[HM](AS|BC|BS|CC|CS|CH|CL|CM|DF|DG|GT|GR|HG|JC|MC|MN|MS|NT|NL|OC|PL|QT|QR|SP|SL|SR|TC|TS|TL|VZ|YN|ZS|NE)[B-DF-HJ-NP-TV-Z]{3}[0-9A-Z]\\d$',
+					errorMessage: 'curp_id_regex_error.'
+				},
 			],
 		},
 		{

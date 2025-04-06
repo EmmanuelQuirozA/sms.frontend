@@ -20,11 +20,12 @@ const ProtectedRoute = ({ allowedRoles }) => {
     console.error('Invalid token:', error);
     return <Navigate to="/login" />;
   }
-
-  // Check if allowedRoles is defined, then check if user's role is allowed.
-  // Make sure that your user object has a "role" property (or update the property name accordingly)
-
-
+  
+  // Check if the user's role is included in the allowedRoles array.
+  if (allowedRoles && !allowedRoles.includes(userRole)) {
+    return <Navigate to="/unauthorized" />;
+  }
+  
   return <Outlet />;
 };
 
