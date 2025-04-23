@@ -1,4 +1,5 @@
 import React, { useContext, useState } from 'react';
+import { useEffect } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 
 import Header from './common/Header';
@@ -21,6 +22,10 @@ const Layout = ({ pageTitle, children }) => {
     logout();
     navigate('/login');
   };
+  
+  useEffect(() => {
+    document.title = pageTitle;
+  }, [pageTitle]);
 
   // Extract the role from user (assume role is stored as user.roleName)
   const role = user ? user.roleName : null;

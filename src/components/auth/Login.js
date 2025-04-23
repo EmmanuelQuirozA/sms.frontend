@@ -46,11 +46,11 @@ const Login = () => {
 
       // Redirect based on role
       if (role === 'ADMIN') {
-        navigate('/admin/dashboard');
+        navigate('/dashboard');
       } else if (role === 'SCHOOL_ADMIN') {
-        navigate('/schooladmin/dashboard');
+        navigate('/dashboard');
       } else if (role === 'STUDENT') {
-        navigate('/student/dashboard');
+        navigate('/dashboard');
       } else {
         // Fallback redirect
         navigate('/');

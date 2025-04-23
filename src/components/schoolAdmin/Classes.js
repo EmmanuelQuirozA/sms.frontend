@@ -251,7 +251,7 @@ const ClassesPage = () => {
 		setLoading(true);
 		const token = localStorage.getItem('token');
 		axios
-			.get(`http://localhost:8080/api/groups/list?&lang=${i18n.language}`, {
+			.get(`http://localhost:8080/api/groups/list?&lang=${i18n.language}&status_filter=-1`, {
 				headers: {
 					Authorization: `Bearer ${token}`,
 				},
@@ -273,7 +273,7 @@ const ClassesPage = () => {
 		setLoading(true);
 		const token = localStorage.getItem('token');
 		axios
-			.get(`http://localhost:8080/api/groups/list?lang=${i18n.language}&status_filter=-1&getRole=workers`, {
+			.get(`http://localhost:8080/api/groups/list?lang=${i18n.language}&status_filter=-1`, {
 				headers: {
 					Authorization: `Bearer ${token}`,
 				},
@@ -346,24 +346,51 @@ const ClassesPage = () => {
 		{
 			name: t('actions'),
 			cell: (row) => (
-        <>
-          <MDBBtn flat="true" size="sm" onClick={() => {
-            setSelectedClass(row);
-            toggleUpdateModal();
-          }}>
-            <MDBIcon fas icon="ellipsis-v" className="cursor-pointer" />
+        <div className='d-flex gap-1'>
+          <MDBBtn 
+						flat="true" 
+						size="sm" 
+						onClick={() => {
+							setSelectedClass(row);
+							toggleUpdateModal();
+						}}
+					>
+            <MDBIcon fas icon="pen" className="cursor-pointer" />
           </MDBBtn>
-          <MDBBtn flat="true" size="sm" color="light" onClick={() => {
-            // Set the selected class for mass student upload and open the modal
-            setSelectedClass(row);
-            setIsMassStudentsUploadModalOpen(true);
-          }}>
+          <MDBBtn 
+						flat="true" 
+						size="sm" 
+						color="light" 
+						onClick={() => {
+							// Set the selected class for mass student upload and open the modal
+							setSelectedClass(row);
+							setIsMassStudentsUploadModalOpen(true);
+						}}
+					>
             <MDBIcon fas icon="upload" className="me-1" />
             {t('import_students')}
           </MDBBtn>
-        </>
+					{/* Generate paymente request button */}
+					<MDBBtn 
+						flat="true" 
+						size="sm" 
+						color="light" 
+						rippleColor="dark" 
+						// onClick={() => setIsMassTeachersUploadModalOpen(true)}
+					>
+						<MDBIcon fas icon="hand-holding-usd" className="me-1" />
+						{t('generate_payment_request')}
+					</MDBBtn>
+        </div>
       ),
 			ignoreRowClick: true,
+			// 1) you can use width or minWidth:
+			width: '400px',
+			// 2) both cell _and_ header need nowrap
+			style:      { whiteSpace: 'nowrap' },      // applies to each cell
+			headerStyle:{ whiteSpace: 'nowrap' },      // applies to the header
+			// 3) tells the table this is a button-ish column
+			button:     true,
 		},
 	];
 
@@ -413,7 +440,7 @@ const ClassesPage = () => {
 		<Layout pageTitle={t('classes')}>
 			<MDBContainer className="py-4">
 				{/* Header Row with Export, Add, Filter buttons */}
-				<MDBRow>
+				<MDBRow className='mb-4'>
 					<MDBCol>
 						<MDBCard>
 							<MDBCardHeader>

@@ -1,5 +1,6 @@
 // src/components/FormModal.js
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   MDBModal,
   MDBModalDialog,
@@ -20,8 +21,17 @@ const FormModal = ({
   formGroups, 
   data, 
   title, // Modal title
-  size // Modal size. E.g.: "xl"
+  size, // Modal size. E.g.: "xl"
+  details,
+  navigateTo
 }) => {
+  const navigate = useNavigate(); // Initialize navigate here
+
+  // Then you can use navigate in your onClick:
+  const goToStudentDetail = () => {
+    navigate(`/studentdetail/${data.student_id}`);
+  };
+
   const { t, i18n } = useTranslation();
 
   // Helper function to format values based on field type
@@ -92,6 +102,14 @@ const FormModal = ({
             {renderFormGroups()}
           </MDBModalBody>
           <MDBModalFooter>
+            {details && (
+              <MDBBtn 
+                color="info"
+                onClick={goToStudentDetail}
+              >
+                {t('go_to_details')}
+              </MDBBtn>
+            )}
             <MDBBtn color="secondary" onClick={onClose}>
               {t('close')}
             </MDBBtn>

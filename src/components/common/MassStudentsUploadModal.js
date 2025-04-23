@@ -122,12 +122,17 @@ const MassUploadModal = ({ open, onClose, onUploadSuccess, school_id, group_id }
 			headers: { Authorization: `Bearer ${token}` }
 		})
 			.then(response => {
-				swal(t('success_title'), t('upload_successful'), 'success');
-				setParsedData([]);
-				setValidationErrors([]);
-				// Use a function reference so fetch is called on success
-				onUploadSuccess && onUploadSuccess();
-				onClose();
+				const resData = response.data;
+				if (resData.success === false) {
+					// For warnings or error messages returned from the SP, display SweetAlert with the provided type/title/message.
+					swal(resData.title, resData.message, resData.type);
+				} else {
+					// If success is true, show a success alert and close the modal.
+					swal(resData.title, resData.message, resData.type);
+					// Use a function reference so fetch is called on success
+					onUploadSuccess && onUploadSuccess();
+					onClose();
+				}
 			})
 			.catch(err => {
 				swal(t('error_title'), t('upload_failed'), 'error');

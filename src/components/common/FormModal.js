@@ -1,5 +1,5 @@
 // src/components/FormModal.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react'
 import {
   MDBModal,
   MDBModalDialog,
@@ -45,6 +45,7 @@ const FormModal = ({
       onSave();
     }
   };
+
 
   // Helper to render a nested container (for nested groups)
   const renderNestedContainer = (container, colSize, index) => {
@@ -198,6 +199,42 @@ const FormModal = ({
         );
 
       }
+    } else if (field.type === 'amountWithUnit') {
+      const amount = data?.[field.key] ?? '';
+      const unit   = data?.[`${field.key}Unit`] ?? '$';
+    
+      return (
+        <MDBCol key={index} size={colSize}>
+          <div className="input-group mb-3">
+            <MDBInput
+              label={t(field.label)}
+              id={`${idPrefix}${field.key}`}
+              type="number"
+              value={data?.[field.key] ?? ''}
+              onChange={(e) =>
+                setData({ ...(data || {}), [field.key]: e.target.value })
+              }
+              required={field.required || false}
+              pattern={field.pattern || undefined}
+              disabled={field.disabled || false}
+              className="form-control"
+            />
+            <select
+              className="form-select"
+              value={unit}
+              onChange={e =>
+                setData({
+                  ...(data || {}),
+                  [`${field.key}Unit`]: e.target.value
+                })
+              }
+            >
+              <option value="$">$</option>
+              <option value="%">%</option>
+            </select>
+          </div>
+        </MDBCol>
+      );
     } else {
       // Standard input field with validation
       return (

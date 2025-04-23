@@ -1,9 +1,11 @@
 import React, { useContext } from 'react';
+import { 
+  MDBContainer, MDBSpinner
+} from 'mdb-react-ui-kit';
 import { AuthContext } from '../context/AuthContext';
 import AdminUsers from './admin/Users';
 import SchoolAdminUsers from './schoolAdmin/Users';
 import NotFoundPage from './NotFoundPage';
-import { MDBSpinner } from 'mdb-react-ui-kit';
 
 const Router = () => {
   const { user, loading } = useContext(AuthContext);
@@ -11,9 +13,9 @@ const Router = () => {
   if (loading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <MDBSpinner role='status'>
-            <span className='visually-hidden'>Loading...</span>
-        </MDBSpinner>
+        <MDBContainer className="my-5 text-center">
+          <MDBSpinner grow color="primary" />
+        </MDBContainer>
       </div>
     );
   }

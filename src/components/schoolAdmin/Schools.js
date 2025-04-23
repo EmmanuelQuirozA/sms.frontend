@@ -24,6 +24,7 @@ const SchoolsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [isCreate_Payment_RequestModalOpen, setIsCreate_Payment_RequestModalOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isMassTeachersUploadModalOpen, setIsMassTeachersUploadModalOpen] = useState(false);
   
@@ -31,7 +32,8 @@ const SchoolsPage = () => {
   const [selectedSchool, setSelectedSchool] = useState(null);
 
   const toggleUpdateModal = () => setIsUpdateModalOpen(prev => !prev);
-
+  const toggleCreate_Payment_RequestModal = () => setIsCreate_Payment_RequestModalOpen(prev => !prev);
+  
   // Fetch schools data and then update each school with its student count
   const fetchSchools = () => {
     setLoading(true);
@@ -88,6 +90,7 @@ const SchoolsPage = () => {
         { key: 'commercial_name', label: 'commercial_name', type: 'text' },
         { key: 'business_name', label: 'business_name', type: 'text' },
         { key: 'tax_id', label: 'tax_id', type: 'text' },
+        { key: 'default_tuition', label: 'default_tuition', type: 'number' },
       ],
     },
     {
@@ -106,6 +109,39 @@ const SchoolsPage = () => {
         { key: 'email', label: 'email', type: 'email' },
       ],
     }
+  ];
+
+  // Update school form groups remain unchanged
+  const createPaymentRequestFormGroups = [
+    {
+      groupTitle: 'fee',
+      columns: 2,
+      fields: [
+        {
+          key: 'feeAmount',
+          label: 'fee_amount',
+          type: 'amountWithUnit',
+          required: true,
+          errorMessage: 'please_enter_amount'
+        },
+        { key: 'late_fee_frequency', label: 'late_fee_frequency', type: 'number' },
+      ],
+    },
+    {
+      groupTitle: 'payment',
+      columns: 2,
+      fields: [
+        { key: 'pay_by', label: 'pay_by', type: 'date' },
+        { key: 'payment_type', label: 'payment_type', type: 'text' },
+      ],
+    },
+    {
+      groupTitle: 'comments',
+      columns: 1,
+      fields: [
+        { key: 'comments', label: 'comments', type: 'text' },
+      ],
+    },
   ];
 
   const handleUpdateSchool = () => {
@@ -128,6 +164,7 @@ const SchoolsPage = () => {
         state: selectedSchool.state,
         phone_number: selectedSchool.phone_number,
         email: selectedSchool.email,
+        default_tuition: selectedSchool.default_tuition,
       },
       {
         headers: { Authorization: `Bearer ${token}` },
@@ -158,14 +195,6 @@ const SchoolsPage = () => {
       </MDBContainer>
     );
   }
-
-  if (loading) {
-    return (
-      <MDBContainer className="text-center py-5">
-        <MDBSpinner size="lg" />
-      </MDBContainer>
-    );
-  }
   
   return (
     <Layout pageTitle={t('schools')}>
@@ -186,6 +215,17 @@ const SchoolsPage = () => {
                       {school.enabled ? "" : (<small>{t("school_disabled")}</small>)}
                     </MDBCol>
                     <MDBCol className="col-auto">
+                      {/* Generate paymente request button */}
+                      <MDBBtn 
+                        flat="true" 
+                        size="sm" 
+                        color="light" 
+                        rippleColor="dark" 
+                        onClick={() => setIsCreate_Payment_RequestModalOpen(true)}
+                      >
+                        <MDBIcon fas icon="hand-holding-usd" className="me-1" />
+                        {t('generate_payment_request')}
+                      </MDBBtn>
                       {/* Import Teachers button */}
                       <MDBBtn 
                         flat="true" 
@@ -205,54 +245,70 @@ const SchoolsPage = () => {
                           toggleUpdateModal();
                         }}
                       >
-                        <MDBIcon fas icon="ellipsis-v" className="cursor-pointer"/>
+                        <MDBIcon fas icon="pen" className="cursor-pointer"/>
                       </MDBBtn>
                     </MDBCol>
                   </MDBRow>
                 </MDBCardHeader>
                 <MDBCardBody>
                   <MDBRow>
-                    <p className="fw-bold">{school.business_name}</p>
-                    <MDBCol md="6" className="mb-0">
-                      <MDBTooltip tag="span" title={t("address")} placement="left">
-                        <p>
-                          <MDBIcon icon="map-marker-alt" className="me-1" />
-                          {school.address}
-                        </p>
-                      </MDBTooltip>
-                      <MDBTooltip tag="span" title={t("phone_number")} placement="left">
-                        <p>
-                          <MDBIcon icon="phone" className="me-1" />
-                          {school.phone_number}
-                        </p>
-                      </MDBTooltip>
-                      <MDBTooltip tag="span" title={t("email")} placement="left">
-                        <p>
-                          <MDBIcon icon="envelope" className="me-1" />
-                          {school.email}
-                        </p>
-                      </MDBTooltip>
-                    </MDBCol>
-                    <MDBCol md="6" className="mb-0">
-                      <MDBTooltip tag="span" title={t("tax_id")} placement="left">
-                        <p>
-                          <MDBIcon icon="id-card" className="me-1" />
-                          {school.tax_id}
-                        </p>
-                      </MDBTooltip>
-                      <MDBTooltip tag="span" title={t("school_status")} placement="left">
-                        <p>
-                          <MDBIcon icon="info-circle" className="me-1" />
-                          {school.school_status}
-                        </p>
-                      </MDBTooltip>
-                      <MDBTooltip tag="span" title={t("student_count")} placement="left">
-                        <p>
-                          <MDBIcon icon="users" className="me-1" />
-                          {school.studentCount} {t('students')}
-                        </p>
-                      </MDBTooltip>
-                    </MDBCol>
+                    <p className="fw-bold">{school.business_name ? school.business_name:"N/A"}</p>
+                      <MDBCol md="6">
+                        <MDBTooltip tag="span" title={t("address")} placement="left">
+                          <p>
+                            <MDBIcon md="6" icon="map-marker-alt" className="me-1" />
+                            {school.address ? school.address:"N/A"}
+                          </p>
+                        </MDBTooltip>
+                      </MDBCol>
+                      <MDBCol md="6">
+                        <MDBTooltip tag="span" title={t("phone_number")} placement="left">
+                          <p>
+                            <MDBIcon md="6" icon="phone" className="me-1" />
+                            {school.phone_number ? school.phone_number:"N/A"}
+                          </p>
+                        </MDBTooltip>
+                      </MDBCol>
+                      <MDBCol md="6">
+                        <MDBTooltip tag="span" title={t("email")} placement="left">
+                          <p>
+                            <MDBIcon md="6" icon="envelope" className="me-1" />
+                            {school.email ? school.email:"N/A"}
+                          </p>
+                        </MDBTooltip>
+                      </MDBCol>
+                      <MDBCol md="6">
+                        <MDBTooltip tag="span" title={t("tax_id")} placement="left">
+                          <p>
+                            <MDBIcon md="6" icon="id-card" className="me-1" />
+                            {school.tax_id ? school.tax_id:"N/A"}
+                          </p>
+                        </MDBTooltip>
+                      </MDBCol>
+                      <MDBCol md="6">
+                        <MDBTooltip tag="span" title={t("school_status")} placement="left">
+                          <p>
+                            <MDBIcon md="6" icon="info-circle" className="me-1" />
+                            {school.school_status ? school.school_status:"N/A"}
+                          </p>
+                        </MDBTooltip>
+                      </MDBCol>
+                      <MDBCol md="6">
+                        <MDBTooltip tag="span" title={t("student_count")} placement="left">
+                          <p>
+                            <MDBIcon md="6" icon="users" className="me-1" />
+                            {school.studentCount ? school.studentCount:"0"} {t('students')}
+                          </p>
+                        </MDBTooltip>
+                      </MDBCol>
+                      <MDBCol md="6">
+                        <MDBTooltip tag="span" title={t("default_tuition")} placement="left">
+                          <p>
+                            <MDBIcon md="6" icon="dollar-sign" className="me-1" />
+                            {school.default_tuition ? school.default_tuition:"N/A"}
+                          </p>
+                        </MDBTooltip>
+                      </MDBCol>
                   </MDBRow>
                 </MDBCardBody>
               </MDBCard>
@@ -282,6 +338,20 @@ const SchoolsPage = () => {
         title={t('update_school')}
         size="xl"
         idPrefix="update_"
+        isSaving={isSaving}
+      />
+
+      {/* Create_Payment_Request School Modal */}
+      <FormModal
+        open={isCreate_Payment_RequestModalOpen}
+        onClose={toggleCreate_Payment_RequestModal}
+        formGroups={createPaymentRequestFormGroups}
+        data={selectedSchool}
+        setData={setSelectedSchool}
+        onSave={handleUpdateSchool}
+        title={t('create_mass_payment_request')}
+        size="xl"
+        idPrefix="create_payment_request_"
         isSaving={isSaving}
       />
     </Layout>

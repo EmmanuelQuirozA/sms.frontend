@@ -19,6 +19,7 @@ import SchoolAdminStudents from './components/schoolAdmin/Students';
 import SchoolAdminCoffee from './components/schoolAdmin/Coffee';
 import SchoolAdminPaymentReports from './components/schoolAdmin/PaymentReports';
 import SchoolAdminClasses from './components/schoolAdmin/Classes';
+import SchoolAdminStudentDetail from './components/schoolAdmin/StudentDetail';
 
 
 //Others, helpers and commons
@@ -34,9 +35,9 @@ function App() {
   
   const getHomeRoute = (user) => {
     if (!user) return '/login';
-    if (user.roleName === 'ADMIN') return '/admin/dashboard';
-    if (user.roleName === 'SCHOOL_ADMIN') return '/schooladmin/dashboard';
-    if (user.roleName === 'STUDENT') return '/student/dashboard';
+    if (user.roleName === 'ADMIN') return '/dashboard';
+    if (user.roleName === 'SCHOOL_ADMIN') return '/dashboard';
+    if (user.roleName === 'STUDENT') return '/dashboard';
     return '/';
   };
   
@@ -92,6 +93,7 @@ function App() {
           <Route element={<ProtectedRoute allowedRoles={['SCHOOL_ADMIN']} />}>
             <Route path="/teachers" element={<SchoolAdminTeachers />} />
             <Route path="/paymentreports" element={<SchoolAdminPaymentReports />} />
+            <Route path="/studentdetail/:studentId" element={<SchoolAdminStudentDetail />} />
           </Route>
 
           <Route element={<ProtectedRoute allowedRoles={['SCHOOL_ADMIN', 'TEACHERS', 'FINANCE']} />}>

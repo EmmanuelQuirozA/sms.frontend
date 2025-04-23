@@ -513,7 +513,7 @@ const UsersPage = () => {
 				}}>
 					<MDBIcon
 					fas
-					icon="ellipsis-v"
+					icon="pen"
 					className="cursor-pointer"
 				/></MDBBtn>
 			),
@@ -562,7 +562,7 @@ const UsersPage = () => {
 		<Layout pageTitle={t('users')}>
 			<MDBContainer className="py-4">
 				{/* Header Row with Export, Add, Filter buttons */}
-				<MDBRow>
+				<MDBRow className='mb-4'>
 					<MDBCol>
 						<MDBCard>
 							<MDBCardHeader>

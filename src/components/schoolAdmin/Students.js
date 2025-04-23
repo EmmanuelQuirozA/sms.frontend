@@ -201,10 +201,11 @@ const StudentsPage = () => {
 		},
 		{
 			groupTitle: 'student_info',
-			columns: 2,
+			columns: 3,
 			fields: [
 				{ key: 'register_id', label: 'register_id', type: 'text', required: true},
 				{ key: 'payment_reference', label: 'payment_reference', type: 'text', required: true },
+        { key: 'tuition', label: 'tuition', type: 'number' },
 			],
 		},
 		{
@@ -274,10 +275,11 @@ const StudentsPage = () => {
 		},
 		{
 			groupTitle: 'student_info',
-			columns: 2,
+			columns: 3,
 			fields: [
 				{ key: 'register_id', label: 'register_id', type: 'text'},
 				{ key: 'payment_reference', label: 'payment_reference', type: 'text' },
+        { key: 'tuition', label: 'tuition', type: 'number' },
 			],
 		},
 		{
@@ -365,6 +367,7 @@ const StudentsPage = () => {
 				personal_email: selectedStudent.personal_email,
 				image: selectedStudent.image,
 				email: selectedStudent.email,
+				tuition: selectedStudent.tuition,
 			},
 			{
 				headers: {
@@ -558,6 +561,11 @@ const StudentsPage = () => {
 			sortable: true,
 		},
 		{
+			name: t('group_status'),
+			selector: (row) => row.group_status,
+			sortable: true,
+		},
+		{
 			name: t('actions'),
 			cell: (row) => (
 				<MDBBtn flat="true" size="sm" onClick={() => {
@@ -566,7 +574,7 @@ const StudentsPage = () => {
 				}}>
 					<MDBIcon
 					fas
-					icon="ellipsis-v"
+					icon="pen"
 					className="cursor-pointer"
 				/></MDBBtn>
 			),
@@ -585,13 +593,16 @@ const StudentsPage = () => {
 	// Prepare CSV data
 	const csvData = filteredStudents.map((student) => ({
 		[t('user_id')]: student.user_id,
+		[t('student_id')]: student.student_id,
 		[t('full_name')]: student.full_name,
+		[t('payment_reference')]: student.payment_reference,
 		[t('username')]: student.username,
-		[t('address')]: student.address,
 		[t('scholar_level_name')]: student.scholar_level_name,
+		[t('generation')]: student.generation,
 		[t('grade_group')]: student.grade_group,
 		[t('commercial_name')]: student.commercial_name,
 		[t('user_status')]: student.user_status,
+		[t('group_status')]: student.group_status,
 	}));
 
 	const conditionalRowStyles = [
@@ -615,7 +626,7 @@ const StudentsPage = () => {
 		<Layout pageTitle={t('students')}>
 			<MDBContainer className="py-4">
 				{/* Header Row with Export, Add, Filter buttons */}
-				<MDBRow>
+				<MDBRow className='mb-4'>
 					<MDBCol>
 						<MDBCard>
 							<MDBCardHeader>
