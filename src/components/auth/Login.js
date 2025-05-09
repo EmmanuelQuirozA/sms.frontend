@@ -1,5 +1,4 @@
 import React, { useState, useContext } from 'react';
-import '../../styles/custom.css';
 import {
   MDBContainer,
   MDBRow,

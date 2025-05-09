@@ -1,4 +1,4 @@
-// src/components/FormModal.js
+// src/components/DetailsModal.js
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -22,8 +22,7 @@ const FormModal = ({
   data, 
   title, // Modal title
   size, // Modal size. E.g.: "xl"
-  details,
-  navigateTo
+  details
 }) => {
   const navigate = useNavigate(); // Initialize navigate here
 
