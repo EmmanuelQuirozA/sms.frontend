@@ -1,40 +1,72 @@
-import React, { createContext, useState, useEffect } from 'react';
+// src/context/AuthContext.js
+import React, {
+  createContext,
+  useState,
+  useEffect,
+  useContext
+} from 'react';
 import { jwtDecode } from 'jwt-decode';
 
-export const AuthContext = createContext();
 
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+const AuthContext = createContext();
+
+/**
+ * Custom hook to consume AuthContext
+ */
+export const useAuth = () => {
+  return useContext(AuthContext);
+};
+
+export function AuthProvider({ children }) {
+  const [user, setUser]     = useState(null);
+  const [userDetails, setUserDetails]     = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // On mount, check localStorage for a token/user
-  useEffect(() => {
+  // Helper: read & decode token
+  const loadUserFromToken = () => {
     const token = localStorage.getItem('token');
-    if (token) {
-      try {
-        const decoded = jwtDecode(token);
-        // Check if the token is expired
-        if (decoded.exp * 1000 < Date.now()) {
-          logout();
-        } else {
-          const userData = localStorage.getItem('user');
-          if (userData) {
-            setUser(JSON.parse(userData));
-          }
-          setLoading(false);
-          // Calculate time remaining until token expiration
-          const timeout = decoded.exp * 1000 - Date.now();
-          const timer = setTimeout(() => {
-            logout();
-          }, timeout);
-          // Clean up the timer if the component unmounts or token changes
-          return () => clearTimeout(timer);
-        }
-      } catch (error) {
-        console.error('Error decoding token:', error);
-        logout();
-      }
+    if (!token) {
+      setUser(null);
+      setUserDetails(null);
+      setLoading(false);
+      return;
     }
+    try {
+      const decoded = jwtDecode(token);
+      // e.g. decoded = { role: "SCHOOL_ADMIN", schoolId:1, userId:3, sub:"AtzimbaD", iat:…, exp:… }
+      // We trust these fields because the token is signed by the server.
+      setUser({
+        role:      decoded.role,
+        schoolId:  decoded.schoolId,
+        userId:    decoded.userId,
+        username:  decoded.sub
+      });
+      setLoading(false);
+      
+      const userDetails = localStorage.getItem('user');
+      if (userDetails) {
+        setUserDetails(JSON.parse(userDetails));
+      }
+      setLoading(false);
+
+      // schedule auto-logout at expiration
+      const expiresIn = decoded.exp * 1000 - Date.now();
+      setTimeout(() => {
+        logout();
+      }, expiresIn);
+    } catch (err) {
+      console.error('Invalid token:', err);
+      logout();
+    }
+  };
+
+  useEffect(() => {
+    loadUserFromToken();
+    // Also re-load if someone manually replaces the token
+    window.addEventListener('storage', loadUserFromToken);
+    return () => {
+      window.removeEventListener('storage', loadUserFromToken);
+    };
   }, []);
 
   const login = (data) => {
@@ -44,18 +76,19 @@ export const AuthProvider = ({ children }) => {
     setUser(data.user);
   };
 
-  // Logout function that clears localStorage and updates state
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setUser(null);
-    // Optionally, redirect to login page (or use a navigation hook in your components)
+    // redirect to login
     window.location.href = '/login';
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
+    <AuthContext.Provider value={{ userDetails, user, loading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
-};
+}
+
+export { AuthContext };

@@ -1,141 +1,126 @@
-import React, { useContext } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthContext } from './context/AuthContext';
+// src/App.js
 
-//Publics
-import Login from './components/auth/Login';
-import ProtectedRoute from './routes/ProtectedRoute';
+import React, { useContext } from 'react'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 
-//Routers
-import DashboardRouter from './components/DashboardRouter';
-import SchoolsRouter from './components/SchoolsRouter';
-import UsersRouter from './components/UsersRouter';
-import SettingsRouter from './components/SettingsRouter';
+import useAuth from './hooks/useAuth';
 
+import './styles/custom.css';
 
-//School Admin
-import SchoolAdminTeachers from './components/schoolAdmin/Teachers';
-import SchoolAdminStudents from './components/schoolAdmin/Students';
-import SchoolAdminCoffee from './components/schoolAdmin/Coffee';
-import SchoolAdminPaymentReports from './components/schoolAdmin/PaymentReports';
-import SchoolAdminClasses from './components/schoolAdmin/Classes';
-import SchoolAdminStudentDetail from './components/schoolAdmin/StudentDetail';
+// Public pages
+import LoginPage       from './pages/Login'
 
+// Common components
+import NotFound         from './components/common/NotFound'
+import Unauthorized     from './components/common/Unauthorized'
+import ProtectedRoute   from './components/common/ProtectedRoute'
 
-//Others, helpers and commons
-import Footer from './components/common/Footer';
+// Layout wrapper (with Header, Sidebar, Footer inside)
+import Layout          from './components/Layout'
 
-import NotFoundPage from './components/NotFoundPage';
-import Unauthorized from './components/Unauthorized';
+// “Router” bundles
+import DashboardRouter from './routes/DashboardRouter'
+import UsersRouter     from './routes/UsersRouter'
+// import ReportsRouter   from './routes/ReportsRouter'
+import SchoolsRouter   from './routes/SchoolsRouter'
+import TeachersRouter   from './routes/TeachersRouter'
+import StudentsRouter   from './routes/StudentsRouter'
+import CoffeeRouter  from './routes/CoffeeRouter'
+import PaymentsReportsRouter  from './routes/PaymentsReportsRouter'
+import ClassesRouter  from './routes/ClassesRouter'
+import StudentDetailsRouter  from './routes/StudentDetailsRouter'
+import PaymentRequestDetailsRouter  from './routes/PaymentRequestDetailsRouter.jsx'
+import SettingsRouter  from './routes/SettingsRouter'
 
+import PrintDemo from './components/PrintDemo';
 
-
-function App() {
-  const { user } = useContext(AuthContext);
-  
-  const getHomeRoute = (user) => {
+function AppRoutes() {
+  const user = useAuth();
+  const home = () => {
     if (!user) return '/login';
-    if (user.roleName === 'ADMIN') return '/dashboard';
-    if (user.roleName === 'SCHOOL_ADMIN') return '/dashboard';
-    if (user.roleName === 'STUDENT') return '/dashboard';
-    return '/';
+    switch (user.role) {
+      case 'ADMIN':
+      case 'SCHOOL_ADMIN':
+      case 'FINANCE':
+      case 'TEACHER':
+      case 'STUDENT':
+        return '/dashboard'
+      default:
+        return '/unauthorized'
+    }
   };
+
   
   return (
-    <Router>
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/login" element={!user ? <Login /> : <Navigate to={getHomeRoute(user)} />} />
-        
-          {/* 
-          Dashboard     --| School Admin | Teachers | Students | Finance | Admin |           
-          Settings      --| School Admin | Teachers | Students | Finance | Admin |
+    <Routes>
 
-          Finance       --| School Admin |          |          | Finance |       |  
+      {/* 
+        Dashboard     --| School Admin | Teachers | Students | Finance | Admin |           
+        Settings      --| School Admin | Teachers | Students | Finance | Admin |
 
-          Schools       --| School Admin |          |          |         | Admin |           
-          Users         --| School Admin |          |          |         | Admin |    
+        Finance       --| School Admin |          |          | Finance |       |  
 
-          Teachers      --| School Admin |          |          |         |       | 
+        Schools       --| School Admin |          |          |         | Admin |           
+        Users         --| School Admin |          |          |         | Admin |    
 
-          Students      --| School Admin | Teachers |          | Finance |       |  
+        Teachers      --| School Admin |          |          |         |       | 
 
-          Parents       --| School Admin | Teachers |          |         |       |   
+        Students      --| School Admin | Teachers |          | Finance |       |  
 
-          Subjects      --| School Admin | Teachers | Students |         |       |      
-          Classes       --| School Admin | Teachers | Students |         |       |      
-          Lessons       --| School Admin | Teachers | Students |         |       |      
-          Examns        --| School Admin | Teachers | Students |         |       |      
-          Assignments   --| School Admin | Teachers | Students |         |       |      
-          Results       --| School Admin | Teachers | Students |         |       |      
-          Attendance    --| School Admin | Teachers | Students |         |       |      
-          Events        --| School Admin | Teachers | Students |         |       |      
-          Messages      --| School Admin | Teachers | Students |         |       |      
-          Announcements --| School Admin | Teachers | Students |         |       |      
+        Parents       --| School Admin | Teachers |          |         |       |   
 
-          Kitchen       --| School Admin |          |          |         | Admin | Kitchen
-          */}
+        Subjects      --| School Admin | Teachers | Students |         |       |      
+        Classes       --| School Admin | Teachers | Students |         |       |      
+        Lessons       --| School Admin | Teachers | Students |         |       |      
+        Examns        --| School Admin | Teachers | Students |         |       |      
+        Assignments   --| School Admin | Teachers | Students |         |       |      
+        Results       --| School Admin | Teachers | Students |         |       |      
+        Attendance    --| School Admin | Teachers | Students |         |       |      
+        Events        --| School Admin | Teachers | Students |         |       |      
+        Messages      --| School Admin | Teachers | Students |         |       |      
+        Announcements --| School Admin | Teachers | Students |         |       |      
 
-          <Route element={<ProtectedRoute allowedRoles={['ADMIN', 'SCHOOL_ADMIN', 'STUDENT', 'TEACHERS', 'STUDENTS', 'FINANCE']} />}>
-            <Route path="/dashboard" element={<DashboardRouter />} />
-            <Route path="/settings" element={<SettingsRouter />} />
-          </Route>
+        Kitchen       --| School Admin |          |          |         | Admin | Kitchen
+      */}
 
-          <Route element={<ProtectedRoute allowedRoles={['ADMIN', 'SCHOOL_ADMIN', 'FINANCE']} />}>
-            <Route path="/finance" element={<DashboardRouter />} />
-          </Route>
 
-          <Route element={<ProtectedRoute allowedRoles={['ADMIN', 'SCHOOL_ADMIN']} />}>
-            <Route path="/schools" element={<SchoolsRouter />} />
-            <Route path="/users" element={<UsersRouter />} />
-          </Route>
-          
-          <Route element={<ProtectedRoute allowedRoles={['SCHOOL_ADMIN']} />}>
-            <Route path="/teachers" element={<SchoolAdminTeachers />} />
-            <Route path="/paymentreports" element={<SchoolAdminPaymentReports />} />
-            <Route path="/studentdetail/:studentId" element={<SchoolAdminStudentDetail />} />
-          </Route>
+      {/* Public */}
+      <Route
+        path="/login"
+        element={ user
+          ? <Navigate to={home()} replace />
+          : <LoginPage />
+        }
+      />
 
-          <Route element={<ProtectedRoute allowedRoles={['SCHOOL_ADMIN', 'TEACHERS', 'FINANCE']} />}>
-            <Route path="/students" element={<SchoolAdminStudents />} />
-          </Route>
-
-          <Route element={<ProtectedRoute allowedRoles={['SCHOOL_ADMIN', 'TEACHERS']} />}>
-            {/* <Route path="/parents" element={<ParentsRouter />} /> */}
-          </Route>
-
-          <Route element={<ProtectedRoute allowedRoles={['SCHOOL_ADMIN', 'TEACHERS', 'STUDENTS']} />}>
-            <Route path="/classes" element={<SchoolAdminClasses />} />
-            {/* 
-            <Route path="/subjects" element={<SubjectsRouter />} />
-            <Route path="/classes" element={<ClassesRouter />} />
-            <Route path="/lessons" element={<LessonsRouter />} />
-            <Route path="/examns" element={<ExamnsRouter />} />
-            <Route path="/assignments" element={<AssignmentsRouter />} />
-            <Route path="/results" element={<ResultsRouter />} />
-            <Route path="/attendance" element={<AttendanceRouter />} />
-            <Route path="/events" element={<EventsRouter />} />
-            <Route path="/messages" element={<MessagesRouter />} />
-            <Route path="/announcements" element={<AnnouncementsRouter />} /> 
-            */}
-          </Route>
-
-          <Route element={<ProtectedRoute allowedRoles={['ADMIN', 'SCHOOL_ADMIN', 'KITCHEN']} />}>
-            <Route path="/coffee" element={<SchoolAdminCoffee />} />
-          </Route>
-
-          <Route element={<ProtectedRoute allowedRoles={['SCHOOL_ADMIN', 'FINANCE']} />}>
-          </Route>
-
-          {/* Fallback for unauthorized access */}
-          <Route path="/unauthorized" element={<Unauthorized />} />
-          {/* Error handling */}
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
       
-      <Footer /> {/* Custom footer across all pages */}
-    </Router>
+
+      {/* All secured pages */}
+      <Route element={<ProtectedRoute allowedRoles={['ADMIN', 'SCHOOL_ADMIN', 'FINANCE']} />}>
+        <Route path="/dashboard" element={<DashboardRouter />} />
+        <Route path="/paymentreports/*" element={<PaymentsReportsRouter />} />
+        <Route path="/studentdetails/:studentId/*" element={<StudentDetailsRouter />} />
+        <Route path="/paymentreports/paymentrequestdetails/:payment_request_id/*" element={<PaymentRequestDetailsRouter />} />
+
+        <Route path="/schools/*" element={<SchoolsRouter />} />
+        <Route path="/classes/*" element={<ClassesRouter />} />
+        <Route path="/users/*" element={<UsersRouter />} />
+        <Route path="/teachers/*" element={<TeachersRouter />} />
+        <Route path="/students/*" element={<StudentsRouter />} />
+
+      </Route>
+      
+      {/* Fallbacks */}
+      <Route path="unauthorized" element={<Unauthorized />} />
+      <Route path="*"            element={<NotFound />} />
+    </Routes>
   );
 }
 
-export default App;
+export default function App() {
+  return (
+    <Router>
+      <AppRoutes />
+    </Router>
+  )
+}

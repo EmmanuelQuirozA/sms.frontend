@@ -26,7 +26,6 @@ footer p {
 /* Sidebar styling */
 #sidebar {
   position: fixed;
-  width: 250px;
   transition: all 0.3s;
 }
 
@@ -123,7 +122,6 @@ footer p {
 
 .main-container {
   width: 100%;
-  margin-left: 250px; /* Espacio para el sidebar */
   transition: all 0.3s;
 }
 
@@ -135,9 +133,6 @@ footer p {
   left: 90px;
 }
 
-.sidebar.expanded {
-  width: 250px;
-}
 
 .sidebar.collapsed .logo_name {
   display: none; /* Oculto por defecto */
@@ -173,3 +168,87 @@ span.logo_name.ms-2 {
 
 
 
+/* 1) Center all tab text */
+.custom-fullwidth-tabs .nav-link {
+  text-align: center;
+  border-radius: 0 !important;  /* reset per-tab rounding */
+}
+
+/* 2) Round only the outer corners of the first/last tabs */
+.custom-fullwidth-tabs .nav-item:first-child .nav-link {
+  border-top-left-radius: 0.5rem !important;
+  border-bottom-left-radius: 0.5rem !important;
+}
+.custom-fullwidth-tabs .nav-item:last-child .nav-link {
+  border-top-right-radius: 0.5rem !important;
+  border-bottom-right-radius: 0.5rem !important;
+}
+
+/* 3) Strip the default active underline */
+.custom-fullwidth-tabs .nav-link.active {
+  border-bottom: none !important;
+  position: relative; /* for our pseudo-element */
+}
+
+/* 4) Add a custom, centered, shorter underline */
+.custom-fullwidth-tabs .nav-link.active::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;         /* adjust length here */
+  height: 0.25rem;     /* thickness of the underline */
+  background-color: currentColor;  /* uses the link’s text color */
+  border-radius: 1.125rem 1.125rem 0  0;         /* slightly round the ends */
+}
+
+
+/* make the tooltip white with gray border */
+.custom-tooltip-wrapper .tooltip-inner {
+  background-color: #fff !important;
+  color: #333 !important;
+  border: 1px solid #ccc !important;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+}
+/* color the little arrow */
+.custom-tooltip-wrapper .tooltip-arrow::before {
+  border-top-color: #ccc !important;
+}
+
+@media print {
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    font-size: 12px;
+  }
+
+  .row {
+    display: flex !important;
+    flex-wrap: wrap !important;
+  }
+
+  .col-md-4 {
+    width: 33.3333% !important;
+    flex: 0 0 33.3333% !important;
+    max-width: 33.3333% !important;
+  }
+
+  .col-md-6 {
+    width: 50% !important;
+    flex: 0 0 50% !important;
+    max-width: 50% !important;
+  }
+
+  .col-md-12 {
+    width: 100% !important;
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Avoid printing buttons and navigation */
+  .no-print {
+    display: none !important;
+  }
+}
