@@ -2,6 +2,8 @@ import React, { useContext } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthContext } from './context/AuthContext';
 
+import './styles/custom.css';
+
 //Publics
 import Login from './components/auth/Login';
 import ProtectedRoute from './routes/ProtectedRoute';
