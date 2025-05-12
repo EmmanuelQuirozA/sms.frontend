@@ -58,10 +58,15 @@ export default function PaymentRequestDetails() {
   const [isRegisterPaymentModalOpen, setIsRegisterPaymentModalOpen] = useState(false);
   const toggleRegisterPaymentModal = () => setIsRegisterPaymentModalOpen(v => !v);
   const { submitPayment, loading:creatingPayment } = useCreatePayment();
+  // Modal state for "Register Payment"
+  const [isUpdatePaymentModalOpen, setIsUpdatePaymentModalOpen] = useState(false);
+  const toggleUpdatePaymentModal = () => setIsUpdatePaymentModalOpen(v => !v);
+  const { updatePayment, loading:updatingPayment } = useCreatePayment();
   
   // Modal state for "Payment Details"
   const [selectedPayment, setSelectedPayment] = useState(null);
   const [showPaymentDetailModal, setShowPaymentDetailModal] = useState(false);
+  const [showPaymentUpdateModal, setShowPaymentUpdateModal] = useState(false);
 
   // Modal state for "Add Balance"
   const [isBalanceModalOpen, setBalanceModalOpen] = useState(false);
@@ -93,6 +98,20 @@ export default function PaymentRequestDetails() {
       swal(t('error'), t('failed_to_fetch_data'), 'error')
     }
   };
+
+  
+
+  const openPaymentUpdateModal = async (paymentId) => {
+    try {
+      const res = await getPaymentDetail(paymentId, i18n.language)
+      setSelectedPayment(res.content?.[0] || null)
+      setShowPaymentUpdateModal(true)
+    } catch {
+      swal(t('error'), t('failed_to_fetch_data'), 'error')
+    }
+  };
+
+
 
   // Fetch paymentRequest logs
   const { logs, loading:logsLoading, error:logsError, reload:logsReload } = usePaymentRequestLogs(payment_request_id, i18n.language);
@@ -230,6 +249,26 @@ export default function PaymentRequestDetails() {
 			],
 		}
 	];
+
+  // Update user form fields to pass to the modal component
+	const updatePaymentFormGroups = [
+		{
+			groupTitle: 'user_info',
+			columns: 4,
+			fields: [
+				{ key: 'payment_concept_id', label: 'payment_concept_id', type: 'text', required: true },
+				{ key: 'payment_month', label: 'payment_month', type: 'text', required: true },
+				{ key: 'amount', label: 'amount', type: 'number', required: true },
+				{ key: 'payment_status_id', label: 'payment_status_id', type: 'text', required: true },
+				{ key: 'validated_by_user_id', label: 'validated_by_user_id', type: 'text', required: true },
+				{ key: 'validated_at', label: 'validated_at', type: 'text', required: true },
+				{ key: 'created_at', label: 'created_at', type: 'text', required: true },
+				{ key: 'comments', label: 'comments', type: 'text', required: true },
+				{ key: 'payment_request_id', label: 'payment_request', type: 'text', required: true },
+				{ key: 'payment_through_id', label: 'payment_through', type: 'text', required: true },
+			]
+		},
+	];
   
   // Print handler
   const printRef = useRef();
@@ -267,6 +306,48 @@ export default function PaymentRequestDetails() {
         payment_month: selectedPaymentRequest.payment_month,
         partial_payment: selectedPaymentRequest.partial_payment === 'true' || selectedPaymentRequest.partial_payment === true,
         log_type_id: 1,
+      };
+  
+      await updatePaymentRequest(payment_request_id, payload, i18n.language)
+      .then((resData) => {
+        swal(resData.title, resData.message, resData.type);
+
+        if (resData.success !== false) {
+          setIsUpdateSettingsModalOpen(false); 
+          setIsUpdateRequestModalOpen(false); 
+          detailsReload();
+          logsReload();
+        }
+      })
+      .catch(() => {
+        swal('Error', 'Unexpected error occurred while updating.', 'error');
+      })
+      .finally(() => {
+        setIsSaving(false);
+      });
+
+    } catch (error) {
+      console.error('Error updating settings:', error);
+      setIsSaving(false);
+    }
+  };
+
+  const handleUpdatePayment = async () => { 
+
+    try {
+      setIsSaving(true);
+  
+      const payload = {
+        payment_concept_id: selectedPayment.payment_concept_id,
+        payment_month: selectedPayment.payment_month,
+        amount: selectedPayment.amount,
+        payment_status_id: selectedPayment.payment_status_id,
+        validated_by_user_id: selectedPayment.validated_by_user_id,
+        validated_at: selectedPayment.validated_at,
+        created_at: selectedPayment.created_at,
+        comments: selectedPayment.comments,
+        payment_request_id: selectedPayment.payment_request_id,
+        payment_through_id: selectedPayment.payment_through_id,
       };
   
       await updatePaymentRequest(payment_request_id, payload, i18n.language)
@@ -662,7 +743,10 @@ export default function PaymentRequestDetails() {
                   {/* Payment rows */}
                   {breakdown.map(p => (
                     <tr key={p.date+"-"+p.balance}>
-                      <td>{p.payment_id? (<LinkCell id={p.payment_id} text={p.payment_id} onClick={openPaymentDetailModal}/>): '-'}</td>
+                      <td>{p.payment_id? (<LinkCell id={p.payment_id} text={p.payment_id} onClick={() => {
+                          openPaymentUpdateModal();
+
+                        }}/>): '-'}</td>
                       <td>{t(p.type)}</td>
                       <td>{p.status_name || '-'}</td>
                       <td>{fmtDate(p.date, {
@@ -970,13 +1054,24 @@ export default function PaymentRequestDetails() {
         isSaving={isSaving}
       />
       
-      <DetailsModal
-        show={showPaymentDetailModal}
-        setShow={setShowPaymentDetailModal}
+      <FormModal
+        // show={showPaymentDetailModal}
+        // setShow={setShowPaymentDetailModal}
+        // formGroups={paymentDetailFormGroups}
+        // data={selectedPayment}
+        // title={t('payment')}
+        // size="xl"
+        // xxxxxxx
+        open={showPaymentUpdateModal}
+        onClose={toggleUpdatePaymentModal}
         formGroups={paymentDetailFormGroups}
         data={selectedPayment}
-        title={t('payment')}
+        setData={setSelectedPayment}
+        onSave={handleUpdatePayment}
+        title={t('update_payment')}
         size="xl"
+        idPrefix="updatePayment_"
+        isSaving={isSaving}
       />
     </Layout>
   );

@@ -1,7 +1,6 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:8080/api',
   headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
 });
 
@@ -28,7 +27,7 @@ export const getStudents = ({
   if (status_filter) params.status_filter = status_filter;
   if (order_by)  params.order_by  = order_by;
   if (order_dir) params.order_dir = order_dir;
-  return api.get('/students/list', { params }).then(r => r.data);
+  return api.get('/api/students/list', { params }).then(r => r.data);
 };
 
 export const getPayments = ({
@@ -65,11 +64,11 @@ export const getPayments = ({
   if (payment_created_at) params.payment_created_at = payment_created_at;
   if (order_by)  params.order_by  = order_by;
   if (order_dir) params.order_dir = order_dir;
-  return api.get('/reports/payments', { params }).then(r => r.data);
+  return api.get('/api/reports/payments', { params }).then(r => r.data);
 };
 
 export const getPaymentDetail = (paymentId, lang) =>
-  api.get('/reports/payments', { params: { payment_id: paymentId, lang } })
+  api.get('/api/reports/payments', { params: { payment_id: paymentId, lang } })
      .then(r => Array.isArray(r.data) ? r.data[0] : r.data)
      .catch(err => console.error("Error loading data:", err));
 
@@ -111,7 +110,7 @@ export const getMonthlyReport = ({
   if (showDebtOnly) params.show_debt_only = showDebtOnly;
   if (order_by)  params.order_by  = order_by;
   if (order_dir) params.order_dir = order_dir;
-  return api.get('/reports/payments/report', { params }).then(r => r.data);
+  return api.get('/api/reports/payments/report', { params }).then(r => r.data);
 };
 
 export const getPaymentRequests = ({
@@ -175,32 +174,32 @@ export const getPaymentRequests = ({
   if (grade_group) params.grade_group = grade_group;
   if (order_by) params.order_by = order_by;
   if (order_dir) params.order_dir = order_dir;
-  return api.get('/reports/paymentrequests', { params }).then(r => r.data);
+  return api.get('/api/reports/paymentrequests', { params }).then(r => r.data);
 };
 
 export const getBalanceRecharges = (userId, lang) =>
-  api.get('/reports/balancerecharges', { params: { user_id: userId, lang } })
+  api.get('/api/reports/balancerecharges', { params: { user_id: userId, lang } })
      .then(r => r.data)
      .catch(err => console.error("Error loading data:", err));
 
 export const getSchools = (lang) =>
-  api.get('/schools/list', { params: { lang, status_filter: -1 } })
+  api.get('/api/schools/list', { params: { lang, status_filter: -1 } })
     .then(r => r.data)
     .catch(err => console.error("Error loading data:", err));
 
 export const getPaymentRequestDetails = (payment_request_id, lang) =>
-  api.get('/reports/paymentrequest/details', { params: { payment_request_id, lang } })
+  api.get('/api/reports/paymentrequest/details', { params: { payment_request_id, lang } })
     .then(r => r.data)
     .catch(err => console.error("Error loading data:", err));
 
     
 export const getPaymentRequestLogs = (payment_request_id, lang) =>
-  api.get(`/logs/payment-requests/${payment_request_id}`, { params: { lang } })
+  api.get(`/api/logs/payment-requests/${payment_request_id}`, { params: { lang } })
     .then(r => r.data)
     .catch(err => console.error("Error loading data:", err));
 
 export const updatePaymentRequest = (payment_request_id, data, lang) =>
-  api.put(`/reports/payment-request/update/${payment_request_id}`, { data }, { params: { lang } })
+  api.put(`/api/reports/payment-request/update/${payment_request_id}`, { data }, { params: { lang } })
     .then(r => r.data)
     .catch(err => {
       console.error("Error updating payment request:", err);
@@ -208,7 +207,7 @@ export const updatePaymentRequest = (payment_request_id, data, lang) =>
     });
 
 export const createPayment = (data, lang) =>
-  api.post(`/payments/create`, data, { params: { lang } }) 
+  api.post(`/api/payments/create`, data, { params: { lang } }) 
     .then(r => r.data)
     .catch(err => {
       console.error("Error creating the payment:", err);
@@ -216,7 +215,7 @@ export const createPayment = (data, lang) =>
     });
 
 export const getPaymentConcepts = (lang) =>
-  api.get(`/catalog/payment-concepts`, { params: { lang } }) 
+  api.get(`/api/catalog/payment-concepts`, { params: { lang } }) 
     .then(r => r.data)
     .catch(err => {
       console.error("Error creating the payment:", err);
@@ -224,7 +223,7 @@ export const getPaymentConcepts = (lang) =>
     });
 
 export const getPaymentStatuses = (lang) =>
-  api.get(`/catalog/payment-statuses`, { params: { lang } }) 
+  api.get(`/api/catalog/payment-statuses`, { params: { lang } }) 
     .then(r => r.data)
     .catch(err => {
       console.error("Error creating the payment:", err);
@@ -232,9 +231,17 @@ export const getPaymentStatuses = (lang) =>
     });
 
 export const getPaymentThrough = (lang) =>
-  api.get(`/catalog/payment-through`, { params: { lang } }) 
+  api.get(`/api/catalog/payment-through`, { params: { lang } }) 
     .then(r => r.data)
     .catch(err => {
       console.error("Error creating the payment:", err);
+      throw err;
+    });
+    
+export const updatePayment = (payment_request_id, data, lang) =>
+  api.put(`/api/payments/update/${payment_request_id}`, { data }, { params: { lang } })
+    .then(r => r.data)
+    .catch(err => {
+      console.error("Error updating payment:", err);
       throw err;
     });
