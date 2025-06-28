@@ -10,13 +10,18 @@ export default function usePaymentRequestDetails(payment_request_id) {
 
   const loadDetails = useCallback(() => {
     setLoading(true);
-    getPaymentRequestDetails(payment_request_id, i18n.language)
+    // **return** the promise so callers can await it
+    return getPaymentRequestDetails(payment_request_id, i18n.language)
       .then(data => {
         setPaymentRequest(data);
-        setLoading(false);
+        setError('');
+        return data;
       })
-      .catch(() => {
+      .catch(err => {
         setError(t('failed_to_fetch_data'));
+        throw err;
+      })
+      .finally(() => {
         setLoading(false);
       });
   }, [payment_request_id, i18n.language, t]);
@@ -25,5 +30,10 @@ export default function usePaymentRequestDetails(payment_request_id) {
     loadDetails();
   }, [loadDetails]);
 
-  return { paymentRequest, loading, error, reload: loadDetails  };
+  return {
+    paymentRequest,
+    loading,
+    error,
+    reload: loadDetails
+  };
 }

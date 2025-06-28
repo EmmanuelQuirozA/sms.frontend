@@ -218,7 +218,7 @@ export const getPaymentConcepts = (lang) =>
   api.get(`/api/catalog/payment-concepts`, { params: { lang } }) 
     .then(r => r.data)
     .catch(err => {
-      console.error("Error creating the payment:", err);
+      console.error("Error fetching the data:", err);
       throw err;
     });
 
@@ -226,7 +226,7 @@ export const getPaymentStatuses = (lang) =>
   api.get(`/api/catalog/payment-statuses`, { params: { lang } }) 
     .then(r => r.data)
     .catch(err => {
-      console.error("Error creating the payment:", err);
+      console.error("Error fetching the data:", err);
       throw err;
     });
 
@@ -234,12 +234,20 @@ export const getPaymentThrough = (lang) =>
   api.get(`/api/catalog/payment-through`, { params: { lang } }) 
     .then(r => r.data)
     .catch(err => {
-      console.error("Error creating the payment:", err);
+      console.error("Error fetching the data:", err);
       throw err;
     });
     
-export const updatePayment = (payment_request_id, data, lang) =>
-  api.put(`/api/payments/update/${payment_request_id}`, { data }, { params: { lang } })
+export const updatePayment = (payment_id, data, lang) =>
+  api.put(`/api/payments/update/${payment_id}`, data, { params: { lang } })
+    .then(r => r.data)
+    .catch(err => {
+      console.error("Error updating payment:", err);
+      throw err;
+    });
+    
+export const uploadReceipt = (payment_id,data,lang) =>
+  api.put(`/api/payments/${payment_id}/uploadReceipt?lang=${lang}`, data)
     .then(r => r.data)
     .catch(err => {
       console.error("Error updating payment:", err);

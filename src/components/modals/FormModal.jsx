@@ -20,8 +20,8 @@ import {
 import { useTranslation } from 'react-i18next';
 
 export default function FormModal({
-  open,
-  onClose,
+  show,
+  setShow,
   formGroups,
   data,
   setData,
@@ -99,13 +99,13 @@ export default function FormModal({
     });
 
   return (
-    <MDBModal show={open} setShow={onClose} tabIndex="-1">
+    <MDBModal open={show} setShow={setShow} tabIndex="-1">
       <MDBValidation onSubmit={handleSubmit} noValidate validated={validated}>
         <MDBModalDialog size={size}>
           <MDBModalContent>
             <MDBModalHeader>
               <MDBModalTitle>{t(title)}</MDBModalTitle>
-              <MDBBtn className="btn-close" color="none" onClick={onClose} />
+              <MDBBtn type="button" className="btn-close" color="none" onClick={() => setShow(false)} />
             </MDBModalHeader>
             <MDBModalBody>{renderGroups()}</MDBModalBody>
             <MDBModalFooter>
@@ -118,7 +118,7 @@ export default function FormModal({
                   disabled={isSaving}
                 />
               )}
-              <MDBBtn color="secondary" onClick={onClose} disabled={isSaving}>
+              <MDBBtn type="button"  color="secondary" onClick={() => setShow(false)} disabled={isSaving}>
                 {isSaving ? <MDBSpinner size="sm" /> : t('close')}
               </MDBBtn>
               <MDBBtn type="submit" form="validationForm" color="primary" disabled={isSaving}>

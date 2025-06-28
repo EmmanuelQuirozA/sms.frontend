@@ -4,23 +4,15 @@ import { useSearchParams }       from 'react-router-dom';
 import { useTranslation }        from 'react-i18next'
 import useAuth                   from '../hooks/useAuth'
 import Layout                    from '../components/Layout'
-import DataTableWrapper          from '../components/tables/DataTableWrapper'
-import FiltersSidebar            from '../components/common/FiltersSidebar'
-import useMonthlyReport          from '../hooks/useMonthlyReport'
-import DetailsModal              from '../components/modals/DetailsModal'
-import { getSchools }            from '../api/studentApi'
-import swal                      from 'sweetalert'
 import PaymentsTable             from '../components/tables/PaymentsTable'
 import MonthlyPaymentsTable      from '../components/tables/MonthlyPaymentsTable'
 import PaymentRequestsTable      from '../components/tables/PaymentRequestsTable'
-import BalanceRechargesTable     from '../components/tables/BalanceRechargesTable'
 import { 
-  MDBContainer, MDBRow, MDBCol, MDBCard, MDBCardHeader, MDBCardBody, 
-  MDBSpinner, MDBInput, MDBBtn, MDBIcon, MDBTabs, MDBTabsItem, MDBTabsLink, MDBTabsContent, MDBTabsPane
+  MDBTabs, MDBTabsItem, MDBTabsLink, MDBTabsContent, MDBTabsPane
 } from 'mdb-react-ui-kit';
 
 export default function PaymentsReportPage() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { role } = useAuth() || {};
   const canExport = ['admin','school_admin','finance'].includes(role?.toLowerCase());
   const canSeeHeaderActions=true;

@@ -1,6 +1,6 @@
 // src/hooks/useCatalogOptions.js
 import { useEffect, useState } from 'react';
-import { getPaymentConcepts, getPaymentThrough } from '../api/studentApi';
+import { getPaymentConcepts, getPaymentThrough, getPaymentStatuses } from '../api/studentApi';
 import { useTranslation } from 'react-i18next';
 
 const useCatalogOptions = (catalogName) => {
@@ -23,6 +23,9 @@ const useCatalogOptions = (catalogName) => {
           break;
         case 'paymentThrough':
           response = await getPaymentThrough(lang);
+          break;
+        case 'paymentStatuses':
+          response = await getPaymentStatuses(lang);
           break;
         default:
           throw new Error('Invalid catalog name');

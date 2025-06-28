@@ -60,6 +60,10 @@ footer p {
   font-size: 24px;
 }
 
+.groupStyle{
+  border-bottom: 1px solid rgb(228 228 228);
+  margin-bottom: 1.5rem;
+}
 
 /* Right Filter Sidebar */
 .right-sidebar {

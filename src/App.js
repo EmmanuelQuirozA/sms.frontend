@@ -108,6 +108,7 @@ function AppRoutes() {
         <Route path="/teachers/*" element={<TeachersRouter />} />
         <Route path="/students/*" element={<StudentsRouter />} />
 
+        <Route path="/coffee/*" element={<CoffeeRouter />} />
       </Route>
       
       {/* Fallbacks */}
